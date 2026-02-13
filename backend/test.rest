@@ -1,0 +1,28 @@
+### user register
+POST http://localhost:5001/api/users/register
+Content-Type: application/json
+
+{
+    "username":"test",
+    "email":"test@blog.com",
+    "password":"test123"
+}
+### login
+POST http://localhost:5001/api/users/login
+Content-Type: application/json
+
+{
+    "email":"test@blog.com",
+    "password":"test123"
+}
+
+### refresh token
+POST http://localhost:5001/api/users/refresh-token
+Content-Type: application/json
+
+{
+  "token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OThmMjRkZDEyNWU1YjljZTA0NTljMjciLCJpYXQiOjE3NzA5OTA1OTEsImV4cCI6MTc3MTU5NTM5MX0.5nj8IUbIib3-HqDc6_4E6_Y0hhRogCamj0S-iFFLXM0"  
+}
+
+### get user by id
+GET http://localhost:5001/api/users/698f24dd125e5b9ce0459c27

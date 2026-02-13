@@ -30,5 +30,14 @@ export default defineConfig([
       'prettier/prettier': 'error',
     },
   },
+  {
+    files: ['backend/**/*.{js,mjs,cjs}'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: globals.node,
+    },
+  },
   prettierConfig,
 ])
