@@ -1,9 +1,10 @@
 import mongoose from 'mongoose'
 import { beforeEach, describe, expect, test } from '@jest/globals'
-import { loginUser, userRegister } from '../services/users.js'
 import { User } from '../models/users.js'
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
+import { userRegister } from '../../../src/api/auth.js'
+import { userLogin } from '../services/users.js'
 dotenv.config()
 describe('User register', () => {
   test('with all parameters must succeed', async () => {
@@ -76,7 +77,7 @@ describe('login', () => {
       email: 'blog2@test.com',
       password: 'test12',
     }
-    const logedin = await loginUser(user)
+    const logedin = await userLogin(user)
     expect(logedin.token).toBeDefined()
     expect(logedin.email).toBe(user.email)
   })
@@ -86,7 +87,7 @@ describe('login', () => {
       password: 'test12',
     }
     try {
-      await loginUser(user)
+      await userLogin(user)
     } catch (error) {
       expect(error.name).toBe('Error')
       expect(error.message).toBe('Incorrect Email or Password!')
@@ -98,7 +99,7 @@ describe('login', () => {
       password: '1234',
     }
     try {
-      await loginUser(user)
+      await userLogin(user)
     } catch (error) {
       expect(error.name).toBe('Error')
       expect(error.message).toBe('Incorrect Email or Password!')

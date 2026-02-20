@@ -39,8 +39,7 @@ export const userLogin = async ({ email, password }) => {
   )
   findUser.refreshToken = refreshToken
   await findUser.save()
-
-  return {
+  const res = {
     accessToken,
     refreshToken,
     user: {
@@ -50,7 +49,10 @@ export const userLogin = async ({ email, password }) => {
       role: findUser.role,
     },
   }
+  return res
 }
+
+//get user by id
 export const getuserById = async (userId) => {
   const user = await User.findById(userId)
   if (!user) {

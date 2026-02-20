@@ -33,3 +33,16 @@ export const userLoginValidation = Joi.object({
     'any.required': 'Password is required.s',
   }),
 })
+
+export const postValidation = Joi.object({
+  title: Joi.string().max(200).required().messages({
+    'string.max': 'title length must be less than 200 characters!',
+    'any.required': 'title is required',
+  }),
+  content: Joi.string()
+    .required()
+    .messages({ 'any.required': 'content is required' }),
+  tags: Joi.array().items(Joi.string()).messages({
+    'array.items': 'tag must be separated by comma',
+  }),
+})
