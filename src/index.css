@@ -2,12 +2,12 @@
 
 @layer base {
   body {
-    background-image: linear-gradient(
+    /* background-image: linear-gradient(
       to bottom right,
       rgb(2 6 23),
       rgb(15 23 42),
       rgb(30 27 75)
-    );
+    ); */
     color: rgb(241 245 249);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;

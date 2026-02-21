@@ -1,4 +1,5 @@
 import {
+  ArrowLeft,
   ArrowRight,
   Chrome,
   Eye,
@@ -7,16 +8,45 @@ import {
   Lock,
   LogIn,
   UserPlus2Icon,
+  X,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from './Button'
+import { useNavigate } from 'react-router-dom'
 
-export const AuthForm = ({ formData, islogin, onChange, handleSubmit }) => {
-  //const [isLoading, setIsLoading] = useState(false)
+export const AuthForm = ({
+  formData,
+  islogin,
+  onChange,
+  handleSubmit,
+  message,
+  setMessage,
+}) => {
+  //const [isLoa
+  // ding, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
+  const navigate = useNavigate()
+  const messageText = message?.[0]
+
+  useEffect(() => {
+    if (!messageText) return
+    const timer = setTimeout(() => {
+      setMessage([null, null])
+    }, 2000)
+    return () => clearTimeout(timer)
+  }, [messageText, setMessage])
+
   return (
-    <div className='w-full max-w-md bg-white/60 rounded-3xl shadow-2xl shadow-indigo-900/25 border border-indigo-100/80 overflow-hidden backdrop-blur-sm transition-all duration-500'>
+    <div className='w-full max-w-md bg-white/80 rounded-3xl shadow-2xl shadow-indigo-900/25 border border-indigo-100/80 overflow-hidden backdrop-blur-sm transition-all duration-500'>
+      <div className='m-1 justify-items-end' title='Cancel'>
+        <button
+          onClick={() => navigate('/')}
+          className='p-2 block  hover:bg-gray-400 rounded-full transition-colors'
+        >
+          <X size={24} className='text-black/60 font-bold' />
+        </button>
+      </div>
       {/* Header section with dynamic title */}
       <div className='px-8 pt-8 pb-6 text-center'>
         <div className='w-12 h-12 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-300/50'>
@@ -35,7 +65,14 @@ export const AuthForm = ({ formData, islogin, onChange, handleSubmit }) => {
             : ' Join us and start your journey today'}
         </p>
       </div>
-
+      <div
+        className={`relative font-bold text-center p-3 mx-2 rounded-lg ${messageText ? (message[1] ? 'block text-green-800 bg-green-400/20' : 'block text-red-500 bg-red-500/20 ') : 'hidden'}`}
+      >
+        <div
+          className={`border-r-2 w-10 h-12 absolute bottom-0 left-0 rounded-lg rounded-r-none border-white/35 `}
+        ></div>
+        <span className='pl-4'>{messageText ? messageText : null}</span>
+      </div>
       <form onSubmit={handleSubmit} className='px-8 space-y-4'>
         {formData.map((field) => (
           <div key={field.name} className='space-y-1.5 w-full'>
@@ -96,7 +133,7 @@ export const AuthForm = ({ formData, islogin, onChange, handleSubmit }) => {
           //isLoading={true}
           size='full'
           iconRight={islogin ? ArrowRight : null}
-          className='mt-2'
+          className='mt-2 cursor-pointer'
         >
           {islogin ? 'Log In' : 'Create Account'}
         </Button>
@@ -118,7 +155,10 @@ export const AuthForm = ({ formData, islogin, onChange, handleSubmit }) => {
       <div className='px-8 py-6 bg-gradient-to-r from-indigo-50 to-violet-50 border-t border-indigo-100 text-center'>
         <p className='text-sm text-slate-600'>
           {islogin ? "Don't have an account?" : 'Already have an account?'}{' '}
-          <button className='font-bold text-indigo-600 hover:text-violet-600 transition-colors'>
+          <button
+            className='font-bold text-indigo-600 transition-colors hover:text-violet-500 cursor-pointer'
+            onClick={() => (islogin ? navigate('/signup') : navigate('/login'))}
+          >
             {islogin ? 'Sign Up' : 'Log In'}
           </button>
         </p>

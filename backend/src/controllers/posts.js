@@ -30,7 +30,7 @@ export const createPostController = async (req, res, next) => {
   }
 }
 
-//lest posts
+//list posts
 export const listPostController = async (req, res, next) => {
   const { sortBy, sortOrder, author } = req.query
   const options = { sortBy, sortOrder }
@@ -77,7 +77,7 @@ export const getPostByIdController = async (req, res, next) => {
     next(error)
   }
 }
-//update psot
+//update post
 export const updatePostController = async (req, res, next) => {
   const { error: bodyError } = postValidation.validate(req.body)
   const { error: paramError } = IdValidation.validate(req.params)

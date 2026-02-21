@@ -1,8 +1,9 @@
-import { ArrowLeft, Lock, Mail, UserPlus } from 'lucide-react'
+import { Lock, Mail, UserPlus } from 'lucide-react'
 import React, { useState } from 'react'
 import { AuthForm } from '../components/authForm'
 import { useMutation } from '@tanstack/react-query'
 import { userRegister } from '../api/auth'
+import { useNavigate } from 'react-router-dom'
 
 export const Signup = () => {
   const [data, setData] = useState({
@@ -10,6 +11,7 @@ export const Signup = () => {
     email: '',
     password: '',
   })
+  const [message, setMessage] = useState([null, null])
   const handleChange = (e) => {
     const { name, value } = e.target
     setData((prev) => ({ ...prev, [name]: value }))
@@ -40,18 +42,22 @@ export const Signup = () => {
       name: 'password',
     },
   ]
+  const navigate = useNavigate()
   const signupMutation = useMutation({
     mutationFn: () => userRegister(data),
-    onSuccess: () => {
-      alert('Your acount is created!')
+    onSuccess: (res) => {
+      setMessage([res?.data?.message, true])
       setData({
         username: '',
         email: '',
         password: '',
       })
+      setTimeout(() => {
+        navigate('/login')
+      }, 2000)
     },
-    onError: () => {
-      alert('registration fialed!')
+    onError: (error) => {
+      setMessage([error.response?.data?.message, false])
       setData({
         username: '',
         email: '',
@@ -67,19 +73,13 @@ export const Signup = () => {
   console.log(user)
   return (
     <div className='min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-indigo-950 flex items-center justify-center p-6'>
-      <div className='fixed top-8 left-8 hidden lg:block'>
-        <div className='flex items-center gap-2 text-indigo-200'>
-          <div className='w-8 h-8 rounded-full bg-white/10 border border-indigo-200/40 flex items-center justify-center shadow-sm backdrop-blur-sm'>
-            <ArrowLeft size={16} />
-          </div>
-          <span className='text-sm font-medium'>Back to website</span>
-        </div>
-      </div>
       <AuthForm
         formData={FormData}
         islogin={false}
         onChange={handleChange}
         handleSubmit={handleSubmit}
+        message={message}
+        setMessage={setMessage}
       />
     </div>
   )

@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 import { User } from '../models/users.js'
-import { generateAccessToken } from '../utils/jwt.js'
+import { generateAccessToken, generateRefreshToken } from '../utils/jwt.js'
 import jwt from 'jsonwebtoken'
 //register user
 
@@ -32,13 +32,10 @@ export const userLogin = async ({ email, password }) => {
   }
   const accessToken = generateAccessToken(findUser)
 
-  const refreshToken = jwt.sign(
-    { sub: findUser._id },
-    process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: '7d' },
-  )
+  const refreshToken = generateRefreshToken(findUser)
   findUser.refreshToken = refreshToken
   await findUser.save()
+
   const res = {
     accessToken,
     refreshToken,
@@ -51,7 +48,41 @@ export const userLogin = async ({ email, password }) => {
   }
   return res
 }
-
+// refresh token session
+export const refreshUserSession = async (refreshToken) => {
+  let payload
+  try {
+    payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
+  } catch {
+    const error = new Error('Invalid refresh token')
+    error.status = 403
+    throw error
+  }
+  if (payload.type && payload.type !== 'refresh') {
+    const error = new Error('Invalid token type')
+    error.status = 403
+    throw error
+  }
+  const user = await User.findById(payload.sub)
+  if (!user || user.refreshToken !== refreshToken) {
+    const error = new Error('Invalid refresh token')
+    error.status = 403
+    throw error
+  }
+  const newAccessToken = generateAccessToken(user)
+  const newRefreshToken = generateRefreshToken(user)
+  user.refreshToken = newRefreshToken
+  await user.save()
+  return { accessToken: newAccessToken, refreshToken: newRefreshToken }
+}
+//log out
+export const logOutUser = async (refreshToken) => {
+  if (!refreshToken) return
+  const user = await User.findOne({ refreshToken })
+  if (!user) return
+  user.refreshToken = undefined
+  await user.save()
+}
 //get user by id
 export const getuserById = async (userId) => {
   const user = await User.findById(userId)

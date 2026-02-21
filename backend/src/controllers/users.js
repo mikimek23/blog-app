@@ -1,12 +1,23 @@
 import { User } from '../models/users.js'
-import { getuserById, userLogin, userRegister } from '../services/users.js'
+import {
+  getuserById,
+  logOutUser,
+  refreshUserSession,
+  userLogin,
+  userRegister,
+} from '../services/users.js'
 import {
   IdValidation,
   userLoginValidation,
   userRegistrationValidation,
 } from '../utils/inputValidation.js'
-import { generateAccessToken } from '../utils/jwt.js'
-import jwt from 'jsonwebtoken'
+const getRefreshTokenCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+  path: '/api/users',
+})
 
 // user registration
 export const UserRegisterController = async (req, res, next) => {
@@ -21,7 +32,6 @@ export const UserRegisterController = async (req, res, next) => {
     console.log(user)
     res.status(201).json({
       message: 'Registration completed',
-      success: true,
     })
   } catch (error) {
     next(error)
@@ -38,10 +48,16 @@ export const userLoginController = async (req, res, next) => {
   try {
     const response = await userLogin(req.body)
 
+    res.cookie(
+      'refreshToken',
+      response.refreshToken,
+      getRefreshTokenCookieOptions(),
+    )
+
     res.status(200).json({
       message: 'you are loged in',
-      success: true,
-      response,
+      accessToken: response.accessToken,
+      user: response.user,
     })
   } catch (error) {
     next(error)
@@ -49,25 +65,38 @@ export const userLoginController = async (req, res, next) => {
 }
 
 //refresh token
-export const refreshTokenController = async (req, res) => {
-  const { token } = req.body
-  if (!token)
-    return res.status(401).json({ message: 'no token', success: false })
+export const refreshTokenController = async (req, res, next) => {
   try {
-    const payload = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET)
-    const user = await User.findById(payload.sub)
-    if (!user || user.refreshToken !== token)
+    const refreshToken = req.cookies.refreshToken
+    if (!refreshToken) {
       return res
-        .status(403)
-        .json({ message: 'Invalid refresh token', success: false })
-    const newAccessToken = generateAccessToken(user)
-    res.status(200).json({ accesstoken: newAccessToken })
+        .status(401)
+        .json({ message: 'no refresh token', success: false })
+    }
+    const { accessToken, refreshToken: newRefreshToken } =
+      await refreshUserSession(refreshToken)
+    res.cookie('refreshToken', newRefreshToken, getRefreshTokenCookieOptions())
+    return res.status(200).json({ accessToken })
   } catch (error) {
-    console.error(error.stack)
-    res.status(403).json({ message: 'Invalid token' })
+    next(error)
   }
 }
-
+// log out
+export const logOutController = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies?.refreshToken
+    await logOutUser(refreshToken)
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      path: '/api/users',
+    })
+    return res.status(200).json({ message: 'Logged out' })
+  } catch (error) {
+    next(error)
+  }
+}
 export const getUserByIdController = async (req, res, next) => {
   const { error } = IdValidation.validate(req.params)
   if (error) {
