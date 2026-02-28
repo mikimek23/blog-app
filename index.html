@@ -4,7 +4,32 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>my_blog</title>
+    <title>Swe-Tip</title>
+    <script>
+      ;(() => {
+        const THEME_KEY = 'mblog-theme'
+        const validThemes = new Set(['light', 'dark', 'system'])
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+          .matches
+          ? 'dark'
+          : 'light'
+
+        let savedTheme = 'system'
+
+        try {
+          const value = localStorage.getItem(THEME_KEY)
+          if (value && validThemes.has(value)) {
+            savedTheme = value
+          }
+        } catch {
+          savedTheme = 'system'
+        }
+
+        const resolvedTheme = savedTheme === 'system' ? systemTheme : savedTheme
+        document.documentElement.dataset.theme = resolvedTheme
+        document.documentElement.style.colorScheme = resolvedTheme
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

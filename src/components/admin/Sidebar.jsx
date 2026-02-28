@@ -15,8 +15,8 @@ export const Sidebar = ({ onNavigate }) => {
   const navClass = ({ isActive }) =>
     `w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
       isActive
-        ? 'bg-slate-100 text-slate-900'
-        : 'hover:bg-slate-800 hover:text-white text-slate-300'
+        ? 'bg-[var(--color-surface)] text-[var(--color-text-primary)]'
+        : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-text-primary)]'
     }`
 
   const handleLogout = async () => {
@@ -29,17 +29,17 @@ export const Sidebar = ({ onNavigate }) => {
   }
 
   return (
-    <div className='flex flex-col h-full'>
-      <div className='h-16 flex items-center px-6 bg-slate-950 border-b border-slate-800'>
-        <div className='w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3'>
+    <div className='flex flex-col h-full ui-surface'>
+      <div className='h-16 flex items-center px-6 border-b ui-border'>
+        <div className='w-8 h-8 rounded-lg flex items-center justify-center mr-3 bg-[var(--color-accent)]'>
           <span className='text-white font-black'>M</span>
         </div>
-        <span className='text-white font-bold text-lg tracking-wide'>
+        <span className='font-bold text-lg tracking-wide ui-heading'>
           M Blog Admin
         </span>
         <button
           type='button'
-          className='ml-auto md:hidden text-slate-400'
+          className='ml-auto md:hidden ui-text-muted'
           onClick={() => onNavigate?.()}
         >
           <X size={20} />
@@ -81,11 +81,11 @@ export const Sidebar = ({ onNavigate }) => {
         </NavLink>
       </div>
 
-      <div className='p-4 border-t border-slate-800'>
+      <div className='p-4 border-t ui-border'>
         <button
           type='button'
           onClick={handleLogout}
-          className='w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-400/10 transition-colors'
+          className='w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[var(--color-danger)] hover:bg-[var(--color-danger-soft)] transition-colors'
         >
           <LogOut size={20} />
           <span className='font-medium'>Log out</span>

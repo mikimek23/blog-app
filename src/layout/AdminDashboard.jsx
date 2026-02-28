@@ -3,6 +3,7 @@ import { Sidebar } from '../components/admin/Sidebar.jsx'
 import { Menu } from 'lucide-react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
+import { ThemeToggle } from '../components/theme/ThemeToggle.jsx'
 
 export const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -18,7 +19,7 @@ export const AdminDashboard = () => {
   }, [location.pathname])
 
   return (
-    <div className='min-h-screen bg-slate-50 flex'>
+    <div className='min-h-screen ui-app-bg flex'>
       {isSidebarOpen && (
         <button
           type='button'
@@ -28,28 +29,29 @@ export const AdminDashboard = () => {
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:block ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:block ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <Sidebar onNavigate={() => setIsSidebarOpen(false)} />
       </aside>
       <div className='flex-1 flex flex-col h-screen overflow-hidden'>
-        <header className='h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 shrink-0'>
+        <header className='h-16 flex items-center justify-between px-4 sm:px-8 shrink-0 ui-surface-soft'>
           <div className='flex items-center gap-4'>
             <button
               type='button'
               onClick={() => setIsSidebarOpen((prev) => !prev)}
-              className='md:hidden text-slate-500 hover:text-slate-800'
+              className='md:hidden ui-text-muted hover:text-[var(--color-text-primary)]'
             >
               <Menu size={24} />
             </button>
-            <h1 className='text-xl font-bold text-slate-800 capitalize hidden sm:block'>
+            <h1 className='text-xl font-bold ui-heading capitalize hidden sm:block'>
               {pageTitle}
             </h1>
           </div>
           <div className='flex items-center gap-4'>
-            <div className='w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 font-bold border border-slate-200'>
+            <ThemeToggle compact />
+            <div className='w-9 h-9 rounded-full flex items-center justify-center font-bold ui-surface-soft ui-text'>
               {user?.username?.[0]?.toUpperCase() || 'A'}
             </div>
           </div>

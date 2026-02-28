@@ -4,6 +4,7 @@ import { Menu, ShieldUser, User2, X } from 'lucide-react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { userLogOut } from '../api/auth.js'
 import { useAuth } from '../hooks/useAuth.js'
+import { ThemeToggle } from './theme/ThemeToggle.jsx'
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -25,15 +26,15 @@ export const Navbar = () => {
   }
 
   return (
-    <nav className='fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100'>
+    <nav className='fixed top-0 left-0 right-0 z-50 border-b ui-border bg-[var(--backdrop-glass)] backdrop-blur-xl'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex justify-between items-center h-16'>
           <Link to='/' className='flex items-center gap-2 group cursor-pointer'>
-            <div className='w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 group-hover:rotate-6 transition-transform'>
+            <div className='w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:rotate-6 bg-[var(--color-accent)]'>
               <span className='text-white font-black text-xl'>M</span>
             </div>
-            <span className='text-xl font-bold tracking-tight text-slate-800'>
-              <span className='text-blue-600'>Blog</span>
+            <span className='text-xl font-bold tracking-tight ui-heading'>
+              <span className='text-[var(--color-accent)]'>Blog</span>
             </span>
           </Link>
 
@@ -47,8 +48,8 @@ export const Navbar = () => {
                   className={({ isActive }) =>
                     `text-sm font-medium transition-colors ${
                       isActive
-                        ? 'text-blue-600 border-b-2 border-blue-600'
-                        : 'text-slate-600 hover:text-blue-600'
+                        ? 'text-[var(--color-accent)] border-b-2 border-[var(--color-accent)]'
+                        : 'ui-text-muted hover:text-[var(--color-accent)]'
                     }`
                   }
                 >
@@ -56,11 +57,12 @@ export const Navbar = () => {
                 </NavLink>
               ))}
             </div>
-            <div className='h-6 w-[1px] bg-slate-200 mx-2'></div>
+            <ThemeToggle />
+            <div className='h-6 w-[1px] mx-1 bg-[var(--color-border)]'></div>
             {isAuthenticated ? (
               <div className='flex items-center gap-3'>
                 <Link
-                  className='px-3 py-1.5 text-sm gap-1.5 inline-flex items-center justify-center font-medium rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+                  className='ui-ring-focus px-3 py-1.5 text-sm gap-1.5 inline-flex items-center justify-center font-medium rounded-xl ui-chip'
                   to='/profile'
                 >
                   <User2 size={16} />
@@ -68,7 +70,7 @@ export const Navbar = () => {
                 </Link>
                 {user?.role === 'admin' && (
                   <Link
-                    className='px-3 py-1.5 text-sm gap-1.5 inline-flex items-center justify-center font-medium rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+                    className='ui-ring-focus px-3 py-1.5 text-sm gap-1.5 inline-flex items-center justify-center font-medium rounded-xl ui-chip'
                     to='/admin/dashboard'
                   >
                     <ShieldUser size={16} />
@@ -87,13 +89,13 @@ export const Navbar = () => {
               <div className='flex items-center gap-3'>
                 <Link
                   to='/login'
-                  className='inline-flex items-center justify-center font-medium rounded-xl bg-transparent text-slate-600 hover:bg-indigo-50 px-3 py-1.5 text-sm gap-1.5'
+                  className='ui-ring-focus inline-flex items-center justify-center font-medium rounded-xl bg-transparent ui-text-muted hover:bg-[var(--color-surface-soft)] px-3 py-1.5 text-sm gap-1.5'
                 >
                   Log in
                 </Link>
                 <Link
                   to='/signup'
-                  className='inline-flex items-center justify-center font-medium rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-500 hover:to-violet-500 hover:shadow-lg hover:shadow-indigo-500/30 px-3 py-1.5 text-sm gap-1.5'
+                  className='ui-ring-focus inline-flex items-center justify-center font-medium rounded-xl bg-[var(--color-accent)] text-[var(--color-accent-contrast)] hover:bg-[var(--color-accent-hover)] px-3 py-1.5 text-sm gap-1.5'
                 >
                   Sign up
                 </Link>
@@ -105,7 +107,7 @@ export const Navbar = () => {
             <button
               type='button'
               onClick={() => setIsOpen((value) => !value)}
-              className='p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors'
+              className='ui-ring-focus p-2 rounded-lg transition-colors ui-text-muted hover:bg-[var(--color-surface-soft)]'
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -114,23 +116,24 @@ export const Navbar = () => {
       </div>
 
       {isOpen && (
-        <div className='md:hidden bg-white border-b border-slate-100 px-4 py-6 space-y-4 animate-in slide-in-from-top duration-300'>
+        <div className='md:hidden px-4 py-6 space-y-4 animate-in slide-in-from-top duration-300 border-t ui-border bg-[var(--color-surface)]'>
+          <ThemeToggle className='w-fit' compact />
           {navLinks.map((link) => (
             <NavLink
               key={link.label}
               to={link.href}
-              className='block text-lg font-medium text-slate-700 px-4 py-2 hover:bg-slate-50 rounded-lg'
+              className='ui-ring-focus block text-lg font-medium ui-text px-4 py-2 hover:bg-[var(--color-surface-soft)] rounded-lg'
               onClick={() => setIsOpen(false)}
             >
               {link.label}
             </NavLink>
           ))}
-          <div className='pt-4 border-t border-slate-100 flex flex-col gap-3'>
+          <div className='pt-4 border-t ui-border flex flex-col gap-3'>
             {isAuthenticated ? (
               <>
                 <Link
                   to='/profile'
-                  className='inline-flex items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-1.5 text-sm gap-1.5'
+                  className='ui-ring-focus inline-flex items-center justify-center rounded-xl ui-chip px-3 py-1.5 text-sm gap-1.5'
                   onClick={() => setIsOpen(false)}
                 >
                   <User2 size={16} />
@@ -139,7 +142,7 @@ export const Navbar = () => {
                 {user?.role === 'admin' && (
                   <Link
                     to='/admin/dashboard'
-                    className='inline-flex items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-1.5 text-sm gap-1.5'
+                    className='ui-ring-focus inline-flex items-center justify-center rounded-xl ui-chip px-3 py-1.5 text-sm gap-1.5'
                     onClick={() => setIsOpen(false)}
                   >
                     <ShieldUser size={16} />
@@ -161,14 +164,14 @@ export const Navbar = () => {
               <>
                 <Link
                   to='/login'
-                  className='inline-flex items-center justify-center rounded-xl bg-transparent text-slate-600 hover:bg-indigo-50 px-3 py-1.5 text-sm gap-1.5'
+                  className='ui-ring-focus inline-flex items-center justify-center rounded-xl bg-transparent ui-text-muted hover:bg-[var(--color-surface-soft)] px-3 py-1.5 text-sm gap-1.5'
                   onClick={() => setIsOpen(false)}
                 >
                   Log in
                 </Link>
                 <Link
                   to='/signup'
-                  className='inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-3 py-1.5 text-sm gap-1.5'
+                  className='ui-ring-focus inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] text-[var(--color-accent-contrast)] px-3 py-1.5 text-sm gap-1.5'
                   onClick={() => setIsOpen(false)}
                 >
                   Sign up

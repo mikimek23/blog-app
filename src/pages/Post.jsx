@@ -31,7 +31,7 @@ export const Post = () => {
   })
 
   if (postQuery.isLoading) {
-    return <div className='text-center text-slate-500'>Loading post...</div>
+    return <div className='text-center ui-text-muted'>Loading post...</div>
   }
 
   if (postQuery.isError) {

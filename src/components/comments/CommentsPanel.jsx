@@ -64,9 +64,11 @@ export const CommentsPanel = ({ postId }) => {
 
   return (
     <section className='max-w-4xl mx-auto mt-12'>
-      <h3 className='text-2xl font-bold text-slate-900 mb-4'>Comments</h3>
+      <h3 className='text-2xl font-bold ui-heading mb-4'>Comments</h3>
 
-      {flash && <p className='mb-4 text-sm text-blue-600'>{flash}</p>}
+      {flash && (
+        <p className='mb-4 text-sm text-[var(--color-accent)]'>{flash}</p>
+      )}
 
       {isAuthenticated ? (
         <form
@@ -79,7 +81,7 @@ export const CommentsPanel = ({ postId }) => {
           <textarea
             value={content}
             onChange={(event) => setContent(event.target.value)}
-            className='w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-blue-500 text-gray-700'
+            className='ui-input p-3'
             placeholder='Write your comment...'
             rows={4}
           />
@@ -92,13 +94,11 @@ export const CommentsPanel = ({ postId }) => {
           </Button>
         </form>
       ) : (
-        <p className='mb-8 text-sm text-slate-500'>
-          Log in to leave a comment.
-        </p>
+        <p className='mb-8 text-sm ui-text-muted'>Log in to leave a comment.</p>
       )}
 
       {commentsQuery.isLoading && (
-        <p className='text-slate-500'>Loading comments...</p>
+        <p className='ui-text-muted'>Loading comments...</p>
       )}
       {commentsQuery.isError && (
         <p className='text-red-600'>Failed to load comments.</p>
@@ -109,16 +109,13 @@ export const CommentsPanel = ({ postId }) => {
           const isOwner = user?.id === comment?.author?._id
           const canDelete = isOwner || user?.role === 'admin'
           return (
-            <article
-              key={comment._id}
-              className='rounded-xl border border-slate-100 p-4 bg-white'
-            >
+            <article key={comment._id} className='rounded-xl p-4 ui-surface'>
               <div className='flex items-start justify-between gap-4'>
                 <div>
-                  <p className='font-semibold text-slate-900'>
+                  <p className='font-semibold ui-text'>
                     {comment.author?.username || 'Unknown'}
                   </p>
-                  <p className='text-xs text-slate-400'>
+                  <p className='text-xs ui-text-muted'>
                     {formatDate(comment.createdAt)}
                   </p>
                 </div>
@@ -145,14 +142,14 @@ export const CommentsPanel = ({ postId }) => {
                   )}
                 </div>
               </div>
-              <p className='mt-3 text-slate-700 whitespace-pre-wrap'>
+              <p className='mt-3 ui-text whitespace-pre-wrap'>
                 {comment.content}
               </p>
             </article>
           )
         })}
         {!commentsQuery.isLoading && comments.length === 0 && (
-          <p className='text-slate-500'>No approved comments yet.</p>
+          <p className='ui-text-muted'>No approved comments yet.</p>
         )}
       </div>
     </section>

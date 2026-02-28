@@ -13,23 +13,25 @@ export const Button = ({
   ...props
 }) => {
   const baseStyles =
-    'inline-flex items-center justify-center font-medium transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none rounded-xl'
+    'ui-ring-focus inline-flex items-center justify-center font-medium transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none rounded-xl border'
 
   const variants = {
     primary:
-      'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-500 hover:to-violet-500 hover:shadow-lg hover:shadow-indigo-500/30',
-    secondary: 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100',
+      'border-transparent bg-[var(--color-accent)] text-[var(--color-accent-contrast)] hover:bg-[var(--color-accent-hover)] hover:shadow-lg',
+    secondary:
+      'border-[var(--color-border)] bg-[var(--color-surface-soft)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-primary)]',
     outline:
-      'border-2 border-indigo-200 bg-transparent text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50',
-    ghost: 'bg-transparent text-slate-600 hover:bg-indigo-50',
+      'border-[var(--color-border-strong)] bg-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-text-primary)]',
+    ghost:
+      'border-transparent bg-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-text-primary)]',
     destructive:
-      'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white hover:shadow-lg hover:shadow-rose-500/20',
+      'border-transparent bg-[var(--color-danger-soft)] text-[var(--color-danger)] hover:bg-[var(--color-danger)] hover:text-white',
     gradient:
-      'bg-gradient-to-r from-fuchsia-600 to-indigo-600 text-white hover:opacity-90 hover:shadow-lg hover:shadow-fuchsia-500/30',
+      'border-transparent bg-gradient-to-r from-indigo-500 via-violet-500 to-sky-500 text-white hover:opacity-90 hover:shadow-lg',
     glass:
-      'bg-white/10 backdrop-blur-md border border-white/30 text-indigo-950 hover:bg-white/20',
+      'border-[var(--color-border)] bg-[var(--backdrop-glass)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-soft)]',
     blank:
-      'bg-gradient-to-r from-slate-900 to-gray-700 text-white hover:shadow-lg hover:shadow-slate-500/30 hover:from-slate-700 hover:to-gray-700',
+      'border-transparent bg-[var(--color-text-primary)] text-[var(--color-surface)] hover:opacity-90 hover:shadow-lg',
   }
 
   const sizes = {

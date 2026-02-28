@@ -51,7 +51,7 @@ export const SessionLayout = () => {
 
   if (!isInitialized && !isAuthRoute) {
     return (
-      <div className='min-h-screen flex items-center justify-center text-slate-500'>
+      <div className='min-h-screen flex items-center justify-center ui-text-muted'>
         Restoring your session...
       </div>
     )

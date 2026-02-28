@@ -123,16 +123,16 @@ export const PostForm = () => {
 
   return (
     <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-      <section className='lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm p-6 sm:p-8'>
+      <section className='lg:col-span-2 rounded-3xl p-6 sm:p-8 ui-surface'>
         <div className='flex items-center gap-3 mb-6'>
-          <div className='w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center'>
+          <div className='w-10 h-10 rounded-xl ui-surface-soft text-[var(--color-accent)] flex items-center justify-center'>
             <PenSquare size={18} />
           </div>
           <div>
-            <h2 className='text-xl font-bold text-slate-800'>
+            <h2 className='text-xl font-bold ui-heading'>
               {isEditMode ? 'Edit Post' : 'Create Post'}
             </h2>
-            <p className='text-sm text-slate-500'>
+            <p className='text-sm ui-text-muted'>
               {isEditMode
                 ? 'Update your published post.'
                 : 'Publish a new post for your audience.'}
@@ -143,9 +143,7 @@ export const PostForm = () => {
         {message[0] && (
           <div
             className={`mb-6 rounded-xl px-4 py-3 text-sm font-medium ${
-              message[1]
-                ? 'bg-green-50 text-green-700 border border-green-100'
-                : 'bg-red-50 text-red-700 border border-red-100'
+              message[1] ? 'ui-alert-success' : 'ui-alert-error'
             }`}
           >
             {message[0]}
@@ -156,7 +154,7 @@ export const PostForm = () => {
           <div>
             <label
               htmlFor='title'
-              className='block text-sm font-semibold text-slate-700 mb-1.5'
+              className='block text-sm font-semibold ui-text mb-1.5'
             >
               Title
             </label>
@@ -166,10 +164,10 @@ export const PostForm = () => {
               value={form.title}
               onChange={handleChange}
               required={!isEditMode}
-              className='w-full rounded-xl border-2 border-slate-200 px-3 py-2.5 outline-none focus:border-indigo-500 text-gray-800'
+              className='ui-input px-3 py-2.5'
               placeholder='Write a clear post title'
             />
-            <p className='text-xs text-slate-500 mt-2'>
+            <p className='text-xs ui-text-muted mt-2'>
               Slug preview: {slugPreview || '-'}
             </p>
           </div>
@@ -177,7 +175,7 @@ export const PostForm = () => {
           <div>
             <label
               htmlFor='image'
-              className='block text-sm font-semibold text-slate-700 mb-1.5'
+              className='block text-sm font-semibold ui-text mb-1.5'
             >
               Cover Image
             </label>
@@ -187,13 +185,13 @@ export const PostForm = () => {
               name='image'
               accept='image/*'
               onChange={handleFileChange}
-              className='w-full rounded-xl border-2 border-slate-200 px-3 py-2.5 outline-none focus:border-indigo-500 text-gray-800'
+              className='ui-input px-3 py-2.5'
             />
             {preview && (
               <img
                 src={preview}
                 alt='Preview'
-                className='mt-3 h-40 w-full object-cover rounded-xl border border-slate-200'
+                className='mt-3 h-40 w-full object-cover rounded-xl ui-border'
               />
             )}
           </div>
@@ -201,7 +199,7 @@ export const PostForm = () => {
           <div>
             <label
               htmlFor='tags'
-              className='block text-sm font-semibold text-slate-700 mb-1.5'
+              className='block text-sm font-semibold ui-text mb-1.5'
             >
               Tags
             </label>
@@ -210,7 +208,7 @@ export const PostForm = () => {
               name='tags'
               value={form.tags}
               onChange={handleChange}
-              className='w-full rounded-xl border-2 border-slate-200 px-3 py-2.5 outline-none focus:border-indigo-500 text-gray-800'
+              className='ui-input px-3 py-2.5'
               placeholder='react, javascript, css'
             />
           </div>
@@ -218,7 +216,7 @@ export const PostForm = () => {
           <div>
             <label
               htmlFor='content'
-              className='block text-sm font-semibold text-slate-700 mb-1.5'
+              className='block text-sm font-semibold ui-text mb-1.5'
             >
               Content
             </label>
@@ -229,7 +227,7 @@ export const PostForm = () => {
               onChange={handleChange}
               required={!isEditMode}
               rows={8}
-              className='w-full rounded-xl border-2 border-slate-200 px-3 py-2.5 outline-none focus:border-indigo-500 resize-y text-gray-800'
+              className='ui-input px-3 py-2.5 resize-y'
               placeholder='Write your post content'
             />
           </div>
@@ -253,21 +251,18 @@ export const PostForm = () => {
         </form>
       </section>
 
-      <aside className='bg-white rounded-3xl border border-slate-100 shadow-sm p-6'>
-        <h3 className='text-lg font-bold text-slate-800 mb-4'>Recent Posts</h3>
+      <aside className='rounded-3xl p-6 ui-surface'>
+        <h3 className='text-lg font-bold ui-heading mb-4'>Recent Posts</h3>
         <div className='space-y-3'>
           {posts.length === 0 ? (
-            <p className='text-sm text-slate-500'>No posts yet.</p>
+            <p className='text-sm ui-text-muted'>No posts yet.</p>
           ) : (
             posts.map((post) => (
-              <div
-                key={post._id}
-                className='rounded-xl border border-slate-100 p-3'
-              >
-                <p className='text-sm font-semibold text-slate-800 line-clamp-2'>
+              <div key={post._id} className='rounded-xl p-3 ui-surface-soft'>
+                <p className='text-sm font-semibold ui-text line-clamp-2'>
                   {post.title}
                 </p>
-                <p className='text-xs text-slate-500 mt-1 line-clamp-1'>
+                <p className='text-xs ui-text-muted mt-1 line-clamp-1'>
                   {post.slug}
                 </p>
               </div>

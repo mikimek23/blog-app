@@ -53,7 +53,7 @@ export const Bloglist = () => {
   const meta = data?.meta
 
   if (isLoading) {
-    return <div className='text-center text-slate-500'>Loading posts...</div>
+    return <div className='text-center ui-text-muted'>Loading posts...</div>
   }
 
   if (isError) {
@@ -69,7 +69,7 @@ export const Bloglist = () => {
       <div className='max-w-xl mx-auto'>
         <div className='relative'>
           <Search
-            className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-800'
+            className='absolute left-3 top-1/2 -translate-y-1/2 ui-text-muted'
             size={18}
           />
           <input
@@ -77,12 +77,12 @@ export const Bloglist = () => {
             placeholder='Search posts by keyword...'
             value={searchInput}
             onChange={(event) => setSearchInput(event.target.value)}
-            className='w-full rounded-xl border border-slate-200 pl-10 pr-10 py-2.5 outline-none focus:border-blue-500 text-gray-500'
+            className='ui-input pl-10 pr-10 py-2.5'
           />
           {searchInput && (
             <button
               type='button'
-              className='absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700'
+              className='ui-ring-focus absolute right-3 top-1/2 -translate-y-1/2 ui-text-muted hover:text-[var(--color-text-primary)]'
               onClick={handleClearSearch}
               aria-label='Clear search'
             >
@@ -91,12 +91,12 @@ export const Bloglist = () => {
           )}
         </div>
         {isFetching && (
-          <p className='text-xs text-slate-500 mt-2'>Updating results...</p>
+          <p className='text-xs ui-text-muted mt-2'>Updating results...</p>
         )}
       </div>
 
       {posts.length === 0 ? (
-        <div className='text-center text-slate-500'>
+        <div className='text-center ui-text-muted'>
           {search ? 'No posts matched your search.' : 'No posts available yet.'}
         </div>
       ) : (

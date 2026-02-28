@@ -16,7 +16,7 @@ export const Blogcard = ({ post }) => {
   return (
     <Link
       to={`/posts/${id}/${slug(post?.slug)}`}
-      className='group bg-white rounded-3xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:shadow-slate-200 transition-all duration-300 cursor-pointer flex flex-col h-full'
+      className='group rounded-3xl overflow-hidden transition-all duration-300 cursor-pointer flex flex-col h-full ui-surface hover:-translate-y-0.5'
     >
       <div className='relative h-48 overflow-hidden'>
         <img
@@ -28,7 +28,7 @@ export const Blogcard = ({ post }) => {
           {post?.tags.map((tag, index) => (
             <span
               key={`${tag}-${index}`}
-              className='bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold text-blue-600 shadow-sm'
+              className='ui-chip backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold shadow-sm'
             >
               {tag.toUpperCase()}
             </span>
@@ -37,7 +37,7 @@ export const Blogcard = ({ post }) => {
       </div>
 
       <div className='p-6 flex flex-col flex-1'>
-        <div className='flex items-center gap-2 text-xs text-slate-400 mb-3'>
+        <div className='flex items-center gap-2 text-xs ui-text-muted mb-3'>
           <Calendar size={14} />
           <span>{formatDate(post?.createdAt)}</span>
           <span>•</span>
@@ -45,24 +45,22 @@ export const Blogcard = ({ post }) => {
           <span>Updated {formatDate(post?.updatedAt)}</span>
         </div>
 
-        <h3 className='text-xl font-bold text-slate-800 group-hover:text-blue-600 transition-colors mb-2 line-clamp-2'>
+        <h3 className='text-xl font-bold ui-heading group-hover:text-[var(--color-accent)] transition-colors mb-2 line-clamp-2'>
           {post?.title}
         </h3>
 
-        <p className='text-slate-500 text-sm line-clamp-3 mb-6 flex-1'>
+        <p className='ui-text-muted text-sm line-clamp-3 mb-6 flex-1'>
           {post?.content?.slice(0, 150) || 'No content'}...
         </p>
 
-        <div className='flex items-center justify-between pt-4 border-t border-slate-50'>
+        <div className='flex items-center justify-between pt-4 border-t ui-border'>
           <div className='flex items-center gap-2'>
-            <div className='w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-blue-600'>
+            <div className='w-8 h-8 rounded-full ui-surface-soft flex items-center justify-center text-xs font-bold text-[var(--color-accent)]'>
               {authorName[0]?.toUpperCase() || 'U'}
             </div>
-            <span className='text-sm font-semibold text-slate-700'>
-              {authorName}
-            </span>
+            <span className='text-sm font-semibold ui-text'>{authorName}</span>
           </div>
-          <div className='flex items-center gap-1 text-sm text-slate-400'>
+          <div className='flex items-center gap-1 text-sm ui-text-muted'>
             <Heart size={14} />
             <span>{post?.totalLikes || 0}</span>
           </div>

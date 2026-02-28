@@ -1,15 +1,21 @@
 import { ToastContainer } from 'react-toastify'
 import { Navbar } from './components/Navbar.jsx'
 import { Outlet } from 'react-router-dom'
+import { useTheme } from './hooks/useTheme.js'
 
 function App() {
+  const { resolvedTheme } = useTheme()
+
   return (
     <div className='min-h-screen'>
       <Navbar />
       <main id='main-content' className='pt-24 pb-16'>
         <Outlet />
       </main>
-      <ToastContainer />
+      <ToastContainer
+        theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
+        toastClassName='ui-toast'
+      />
     </div>
   )
 }

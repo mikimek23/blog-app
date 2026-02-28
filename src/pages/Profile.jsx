@@ -29,7 +29,7 @@ export const Profile = () => {
   })
 
   if (profileQuery.isLoading) {
-    return <div className='text-center text-slate-500'>Loading profile...</div>
+    return <div className='text-center ui-text-muted'>Loading profile...</div>
   }
 
   if (profileQuery.isError) {
@@ -42,18 +42,16 @@ export const Profile = () => {
 
   return (
     <section className='max-w-3xl mx-auto space-y-6'>
-      <h2 className='text-3xl font-bold text-slate-900'>My Profile</h2>
-      <div className='rounded-2xl bg-white border border-slate-100 p-6 space-y-4'>
-        <p className='text-sm text-slate-500'>Username: {profile.username}</p>
-        <p className='text-sm text-slate-500'>
+      <h2 className='text-3xl font-bold ui-heading'>My Profile</h2>
+      <div className='rounded-2xl p-6 space-y-4 ui-surface'>
+        <p className='text-sm ui-text-muted'>Username: {profile.username}</p>
+        <p className='text-sm ui-text-muted'>
           Email: {profile.email || 'Private'}
         </p>
         <div className='space-y-2'>
-          <label className='text-sm font-semibold text-slate-700'>
-            Avatar URL
-          </label>
+          <label className='text-sm font-semibold ui-text'>Avatar URL</label>
           <input
-            className='w-full rounded-xl border border-slate-200 px-3 py-2 text-gray-500'
+            className='ui-input'
             value={form.avatarUrl}
             onChange={(event) =>
               setForm((prev) => ({ ...prev, avatarUrl: event.target.value }))
@@ -61,9 +59,9 @@ export const Profile = () => {
           />
         </div>
         <div className='space-y-2'>
-          <label className='text-sm font-semibold text-slate-700'>Bio</label>
+          <label className='text-sm font-semibold ui-text'>Bio</label>
           <textarea
-            className='w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-800'
+            className='ui-input'
             rows={4}
             value={form.bio}
             onChange={(event) =>

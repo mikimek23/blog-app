@@ -50,56 +50,54 @@ export const UserManagement = () => {
     <div className='space-y-6'>
       <div className='relative w-full sm:w-96'>
         <Search
-          className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-500'
+          className='absolute left-3 top-1/2 -translate-y-1/2 ui-text-muted'
           size={18}
         />
         <input
           type='text'
           placeholder='Search users...'
-          className='w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:border-blue-500 transition-colors text-slate-500'
+          className='ui-input pl-10 pr-4 py-2.5'
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
         />
       </div>
 
-      <div className='bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden'>
+      <div className='rounded-3xl overflow-hidden ui-surface'>
         <div className='overflow-x-auto'>
           <table className='w-full text-left border-collapse'>
             <thead>
-              <tr className='bg-slate-50 border-b border-slate-100 text-sm font-semibold text-slate-500 uppercase tracking-wider'>
+              <tr className='border-b ui-border text-sm font-semibold ui-text-muted uppercase tracking-wider bg-[var(--color-surface-soft)]'>
                 <th className='p-5'>User</th>
                 <th className='p-5'>Role</th>
                 <th className='p-5'>Status</th>
                 <th className='p-5 text-right'>Actions</th>
               </tr>
             </thead>
-            <tbody className='divide-y divide-slate-100 text-sm'>
+            <tbody className='text-sm'>
               {usersQuery.isLoading && (
                 <tr>
-                  <td colSpan='4' className='p-8 text-center text-slate-500'>
+                  <td colSpan='4' className='p-8 text-center ui-text-muted'>
                     Loading users...
                   </td>
                 </tr>
               )}
               {!usersQuery.isLoading &&
                 users.map((user) => (
-                  <tr key={user._id}>
+                  <tr key={user._id} className='border-t ui-border'>
                     <td className='p-5'>
-                      <p className='font-bold text-slate-800'>
-                        {user.username}
-                      </p>
-                      <p className='text-slate-400'>{user.email}</p>
+                      <p className='font-bold ui-heading'>{user.username}</p>
+                      <p className='ui-text-muted'>{user.email}</p>
                     </td>
                     <td className={`p-5`}>
                       <span
-                        className={`p-1 rounded-lg ${user.role === 'admin' ? 'bg-blue-100 text-blue-800 font-bold ' : 'bg-yellow-100 text-yellow-800 font-bold'}`}
+                        className={`px-2 py-1 rounded-lg border font-bold ${user.role === 'admin' ? 'bg-[var(--color-surface-soft)] text-[var(--color-accent)] border-[var(--color-border)]' : 'bg-[var(--color-surface-soft)] ui-text border-[var(--color-border)]'}`}
                       >
                         {user.role}
                       </span>
                     </td>
                     <td className='p-5'>
                       <span
-                        className={`p-1 rounded-lg ${user.isActive ? 'bg-green-100 text-green-700 font-bold' : 'bg-red-100 text-red-700 font-bold'}`}
+                        className={`px-2 py-1 rounded-lg border font-bold ${user.isActive ? 'ui-alert-success' : 'ui-alert-error'}`}
                       >
                         {user.isActive ? 'Active' : 'Disabled'}
                       </span>

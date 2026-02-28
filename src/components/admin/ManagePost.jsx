@@ -66,13 +66,13 @@ export const ManagePost = () => {
       <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
         <div className='relative w-full sm:w-96'>
           <Search
-            className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400'
+            className='absolute left-3 top-1/2 -translate-y-1/2 ui-text-muted'
             size={18}
           />
           <input
             type='text'
             placeholder='Search posts...'
-            className='w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:border-blue-500 transition-colors text-slate-500'
+            className='ui-input pl-10 pr-4 py-2.5'
             value={searchInput}
             onChange={(event) => setSearchInput(event.target.value)}
           />
@@ -92,21 +92,21 @@ export const ManagePost = () => {
         </div>
       )}
 
-      <div className='bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden'>
+      <div className='rounded-3xl overflow-hidden ui-surface'>
         <div className='overflow-x-auto'>
           <table className='w-full text-left border-collapse'>
             <thead>
-              <tr className='bg-slate-50 border-b border-slate-100 text-sm font-semibold text-slate-500 uppercase tracking-wider'>
+              <tr className='border-b ui-border text-sm font-semibold ui-text-muted uppercase tracking-wider bg-[var(--color-surface-soft)]'>
                 <th className='p-5'>Post Title</th>
                 <th className='p-5 hidden md:table-cell'>Date</th>
                 <th className='p-5 hidden sm:table-cell'>Status</th>
                 <th className='p-5 text-right'>Actions</th>
               </tr>
             </thead>
-            <tbody className='divide-y divide-slate-100 text-sm'>
+            <tbody className='text-sm'>
               {isLoading && (
                 <tr>
-                  <td colSpan='4' className='p-8 text-center text-slate-500'>
+                  <td colSpan='4' className='p-8 text-center ui-text-muted'>
                     Loading posts...
                   </td>
                 </tr>
@@ -115,21 +115,21 @@ export const ManagePost = () => {
                 posts.map((post) => (
                   <tr
                     key={post._id}
-                    className='hover:bg-slate-50 transition-colors group'
+                    className='transition-colors group border-t ui-border hover:bg-[var(--color-surface-soft)]'
                   >
                     <td className='p-5'>
-                      <p className='font-bold text-slate-800 line-clamp-1'>
+                      <p className='font-bold ui-heading line-clamp-1'>
                         {post.title}
                       </p>
-                      <p className='text-slate-400 mt-1 hidden md:block'>
+                      <p className='ui-text-muted mt-1 hidden md:block'>
                         by {post.author?.username || 'Unknown'}
                       </p>
                     </td>
-                    <td className='p-5 text-slate-500 hidden md:table-cell whitespace-nowrap'>
+                    <td className='p-5 ui-text-muted hidden md:table-cell whitespace-nowrap'>
                       {formatDate(post.createdAt)}
                     </td>
                     <td className='p-5 hidden sm:table-cell'>
-                      <span className='px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700'>
+                      <span className='px-3 py-1 rounded-full text-xs font-bold border ui-alert-success'>
                         Published
                       </span>
                     </td>
@@ -142,7 +142,7 @@ export const ManagePost = () => {
                           title='Edit'
                           type='button'
                         >
-                          <Edit3 size={16} className='text-slate-600' />
+                          <Edit3 size={16} className='ui-text' />
                         </Button>
                         <Button
                           variant='destructive'
@@ -159,7 +159,7 @@ export const ManagePost = () => {
                 ))}
               {!isLoading && posts.length === 0 && (
                 <tr>
-                  <td colSpan='4' className='p-8 text-center text-slate-500'>
+                  <td colSpan='4' className='p-8 text-center ui-text-muted'>
                     No posts found. Start writing!
                   </td>
                 </tr>
@@ -178,7 +178,7 @@ export const ManagePost = () => {
         >
           Previous
         </Button>
-        <span className='text-sm text-slate-500'>
+        <span className='text-sm ui-text-muted'>
           Page {meta?.page || 1} of {meta?.totalPages || 1}
         </span>
         <Button

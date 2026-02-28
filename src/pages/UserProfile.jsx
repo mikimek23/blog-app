@@ -16,7 +16,7 @@ export const UserProfile = () => {
   })
 
   if (profileQuery.isLoading) {
-    return <div className='text-center text-slate-500'>Loading profile...</div>
+    return <div className='text-center ui-text-muted'>Loading profile...</div>
   }
 
   if (profileQuery.isError) {
@@ -30,11 +30,9 @@ export const UserProfile = () => {
 
   return (
     <section className='space-y-8'>
-      <header className='max-w-4xl mx-auto rounded-2xl bg-white border border-slate-100 p-6'>
-        <h2 className='text-3xl font-bold text-slate-900'>
-          {profile?.username}
-        </h2>
-        <p className='text-slate-500 mt-2'>{profile?.bio || 'No bio yet.'}</p>
+      <header className='max-w-4xl mx-auto rounded-2xl p-6 ui-surface'>
+        <h2 className='text-3xl font-bold ui-heading'>{profile?.username}</h2>
+        <p className='ui-text-muted mt-2'>{profile?.bio || 'No bio yet.'}</p>
       </header>
 
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>

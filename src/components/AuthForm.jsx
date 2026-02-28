@@ -24,43 +24,43 @@ export const AuthForm = ({
   }, [messageText, setMessage])
 
   return (
-    <div className='w-full max-w-md bg-white/80 rounded-3xl shadow-2xl shadow-indigo-900/25 border border-indigo-100/80 overflow-hidden backdrop-blur-sm transition-all duration-500'>
+    <div className='w-full max-w-md rounded-3xl overflow-hidden transition-all duration-500 ui-surface'>
       <div className='m-1 justify-items-end' title='Cancel'>
         <button
           type='button'
           onClick={() => navigate('/')}
-          className='p-2 block hover:bg-gray-400 rounded-full transition-colors'
+          className='ui-ring-focus p-2 block hover:bg-[var(--color-surface-soft)] rounded-full transition-colors'
         >
-          <X size={24} className='text-black/60 font-bold' />
+          <X size={24} className='ui-text-muted font-bold' />
         </button>
       </div>
       <div className='px-8 pt-8 pb-6 text-center'>
-        <div className='w-12 h-12 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-300/50'>
+        <div className='w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg bg-[var(--color-accent)]'>
           {islogin ? (
             <LogIn className='text-white' size={24} />
           ) : (
             <UserPlus2Icon className='text-white' size={24} />
           )}
         </div>
-        <h2 className='text-2xl font-bold text-slate-900'>
+        <h2 className='text-2xl font-bold ui-heading'>
           {islogin ? 'Welcome Back' : 'Create Account'}
         </h2>
-        <p className='text-slate-600 mt-1'>
+        <p className='ui-text-muted mt-1'>
           {islogin
             ? 'Enter your details to access your account'
             : 'Join us and start your journey today'}
         </p>
       </div>
       <div
-        className={`relative font-bold text-center p-3 mx-2 rounded-lg ${
+        className={`relative font-bold text-center p-3 mx-2 rounded-lg border ${
           messageText
             ? message[1]
-              ? 'block text-green-800 bg-green-400/20'
-              : 'block text-red-500 bg-red-500/20'
+              ? 'block ui-alert-success'
+              : 'block ui-alert-error'
             : 'hidden'
         }`}
       >
-        <div className='border-r-2 w-10 h-12 absolute bottom-0 left-0 rounded-lg rounded-r-none border-white/35'></div>
+        <div className='border-r-2 w-10 h-12 absolute bottom-0 left-0 rounded-lg rounded-r-none border-[var(--color-border)]'></div>
         <span className='pl-4'>{messageText || null}</span>
       </div>
       <form onSubmit={handleSubmit} className='px-8 space-y-4'>
@@ -68,12 +68,12 @@ export const AuthForm = ({
           <div key={field.name} className='space-y-1.5 w-full'>
             <label
               htmlFor={field.name}
-              className='text-sm font-semibold text-slate-700 ml-1'
+              className='text-sm font-semibold ui-text ml-1'
             >
               {field.label}
             </label>
             <div className='relative group'>
-              <div className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors'>
+              <div className='absolute left-3 top-1/2 -translate-y-1/2 ui-text-muted group-focus-within:text-[var(--color-accent)] transition-colors'>
                 {field.icon && <field.icon size={18} />}
               </div>
               <input
@@ -89,14 +89,14 @@ export const AuthForm = ({
                 name={field.name}
                 id={field.name}
                 onChange={onChange}
-                className='w-full pl-10 pr-10 py-3 bg-white border-2 border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 outline-none transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100'
+                className='ui-input pl-10 pr-10 py-3'
                 required
               />
               {field.type === 'password' && (
                 <button
                   type='button'
                   onClick={() => setShowPassword((value) => !value)}
-                  className='absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600'
+                  className='ui-ring-focus absolute right-3 top-1/2 -translate-y-1/2 ui-text-muted hover:text-[var(--color-accent)]'
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -109,7 +109,7 @@ export const AuthForm = ({
           <div className='flex justify-end'>
             <button
               type='button'
-              className='text-sm font-medium text-indigo-600 hover:text-violet-600'
+              className='ui-ring-focus text-sm font-medium text-[var(--color-accent)] hover:text-[var(--color-accent-hover)]'
             >
               Forgot password?
             </button>
@@ -127,12 +127,12 @@ export const AuthForm = ({
         </Button>
       </form>
 
-      <div className='px-8 py-6 bg-gradient-to-r from-indigo-50 to-violet-50 border-t border-indigo-100 text-center mt-6'>
-        <p className='text-sm text-slate-600'>
+      <div className='px-8 py-6 border-t ui-border text-center mt-6 bg-[var(--color-surface-soft)]'>
+        <p className='text-sm ui-text-muted'>
           {islogin ? "Don't have an account?" : 'Already have an account?'}{' '}
           <button
             type='button'
-            className='font-bold text-indigo-600 transition-colors hover:text-violet-500 cursor-pointer'
+            className='ui-ring-focus font-bold text-[var(--color-accent)] transition-colors hover:text-[var(--color-accent-hover)] cursor-pointer'
             onClick={() => (islogin ? navigate('/signup') : navigate('/login'))}
           >
             {islogin ? 'Sign Up' : 'Log In'}

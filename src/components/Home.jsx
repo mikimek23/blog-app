@@ -16,7 +16,7 @@ const HOME_QUERY_PARAMS = {
 }
 
 const ctaBaseClass =
-  'inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 active:scale-95'
+  'ui-ring-focus inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 active:scale-95'
 
 const formatDate = (dateValue) => {
   if (!dateValue) return 'Unknown date'
@@ -59,15 +59,15 @@ const getTopTags = (posts, maxTags = 6) => {
 const HeroSection = ({ isAuthenticated }) => {
   return (
     <section className='home-section-animate max-w-5xl mx-auto text-center'>
-      <p className='inline-flex items-center rounded-full border border-indigo-200 bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-indigo-700 backdrop-blur'>
+      <p className='inline-flex items-center rounded-full ui-chip px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] backdrop-blur'>
         Editorial insights for modern builders
       </p>
 
-      <h1 className='font-editorial mt-6 text-4xl font-bold leading-tight text-slate-900 sm:text-5xl lg:text-6xl'>
+      <h1 className='font-editorial mt-6 text-4xl font-bold leading-tight ui-heading sm:text-5xl lg:text-6xl'>
         Practical stories and ideas from shipping real software.
       </h1>
 
-      <p className='mx-auto mt-5 max-w-2xl text-base text-slate-600 sm:text-lg'>
+      <p className='mx-auto mt-5 max-w-2xl text-base ui-text-muted sm:text-lg'>
         Read thoughtful articles on product engineering, architecture choices,
         and front-end craft from a team focused on clarity and execution.
       </p>
@@ -75,13 +75,13 @@ const HeroSection = ({ isAuthenticated }) => {
       <div className='mt-8 flex flex-wrap items-center justify-center gap-3'>
         <Link
           to='/posts'
-          className={`${ctaBaseClass} gap-3 bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-3.5 text-lg text-white hover:from-indigo-500 hover:to-violet-500 hover:shadow-lg hover:shadow-indigo-500/30`}
+          className={`${ctaBaseClass} gap-3 bg-[var(--color-accent)] px-8 py-3.5 text-lg text-[var(--color-accent-contrast)] hover:bg-[var(--color-accent-hover)] hover:shadow-lg`}
         >
           Read Latest Posts <ArrowRight size={20} />
         </Link>
         <Link
           to={isAuthenticated ? '/profile' : '/signup'}
-          className={`${ctaBaseClass} border-2 border-indigo-200 bg-white px-8 py-3.5 text-lg text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50`}
+          className={`${ctaBaseClass} border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-8 py-3.5 text-lg ui-text hover:bg-[var(--color-surface-soft)]`}
         >
           {isAuthenticated ? 'Go to Profile' : 'Create Account'}
         </Link>
@@ -99,7 +99,7 @@ const FeaturedSection = ({ post }) => {
   return (
     <section className='home-section-animate max-w-6xl mx-auto mt-14'>
       <div className='mb-5 flex items-end justify-between gap-4'>
-        <h2 className='font-editorial text-3xl font-bold text-slate-900'>
+        <h2 className='font-editorial text-3xl font-bold ui-heading'>
           Featured story
         </h2>
         <Link to='/posts' className='home-link text-sm font-semibold'>
@@ -107,7 +107,7 @@ const FeaturedSection = ({ post }) => {
         </Link>
       </div>
 
-      <article className='grid overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-[0_30px_80px_-45px_rgba(15,23,42,0.45)] md:grid-cols-[1.15fr_1fr]'>
+      <article className='grid overflow-hidden rounded-3xl ui-surface md:grid-cols-[1.15fr_1fr]'>
         <div className='aspect-[16/11] overflow-hidden md:aspect-auto'>
           <img
             src={post.imageUrl || FALLBACK_IMAGE}
@@ -118,23 +118,21 @@ const FeaturedSection = ({ post }) => {
 
         <div className='flex flex-col justify-between p-6 sm:p-8'>
           <div>
-            <div className='flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.12em] text-slate-500'>
+            <div className='flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.12em] ui-text-muted'>
               <span>{formatDate(post.createdAt)}</span>
               <span aria-hidden='true'>&bull;</span>
               <span>{authorName}</span>
             </div>
-            <h3 className='font-editorial mt-4 text-3xl font-bold leading-tight text-slate-900'>
+            <h3 className='font-editorial mt-4 text-3xl font-bold leading-tight ui-heading'>
               {post.title}
             </h3>
-            <p className='mt-4 text-slate-600'>
-              {extractExcerpt(post.content)}
-            </p>
+            <p className='mt-4 ui-text-muted'>{extractExcerpt(post.content)}</p>
           </div>
 
           <div className='mt-6'>
             <Link
               to={`/posts/${postId}`}
-              className='inline-flex items-center gap-2 text-sm font-semibold text-indigo-700 hover:text-indigo-600'
+              className='inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-accent)] hover:text-[var(--color-accent-hover)]'
             >
               Read article <ArrowRight size={16} />
             </Link>
@@ -150,7 +148,7 @@ const TopicsSection = ({ tags }) => {
 
   return (
     <section className='home-section-animate max-w-6xl mx-auto mt-14'>
-      <h2 className='font-editorial text-2xl font-bold text-slate-900'>
+      <h2 className='font-editorial text-2xl font-bold ui-heading'>
         Browse by topic
       </h2>
       <div className='mt-4 flex flex-wrap gap-2.5'>
@@ -158,7 +156,7 @@ const TopicsSection = ({ tags }) => {
           <Link
             key={tag}
             to={`/posts?search=${encodeURIComponent(tag)}`}
-            className='inline-flex items-center rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:border-indigo-200 hover:text-indigo-700'
+            className='inline-flex items-center rounded-full ui-chip px-3.5 py-1.5 text-sm font-medium transition-colors hover:text-[var(--color-accent)]'
           >
             #{tag}
           </Link>
@@ -174,7 +172,7 @@ const LatestPostsSection = ({ posts }) => {
   return (
     <section className='home-section-animate max-w-6xl mx-auto mt-14'>
       <div className='mb-5 flex items-end justify-between gap-4'>
-        <h2 className='font-editorial text-3xl font-bold text-slate-900'>
+        <h2 className='font-editorial text-3xl font-bold ui-heading'>
           Latest posts
         </h2>
         <Link to='/posts' className='home-link text-sm font-semibold'>
@@ -196,11 +194,11 @@ const LatestPostsSection = ({ posts }) => {
 const FinalCtaSection = ({ isAuthenticated }) => {
   return (
     <section className='home-section-animate max-w-6xl mx-auto mt-16'>
-      <div className='rounded-3xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-sky-50 p-6 shadow-[0_25px_70px_-45px_rgba(67,56,202,0.45)] sm:p-8'>
-        <h2 className='font-editorial text-3xl font-bold text-slate-900'>
+      <div className='rounded-3xl p-6 sm:p-8 ui-surface'>
+        <h2 className='font-editorial text-3xl font-bold ui-heading'>
           Keep reading what matters
         </h2>
-        <p className='mt-3 max-w-2xl text-slate-600'>
+        <p className='mt-3 max-w-2xl ui-text-muted'>
           Discover technical write-ups, practical guides, and thoughtful ideas
           curated for engineers who ship.
         </p>
@@ -208,14 +206,14 @@ const FinalCtaSection = ({ isAuthenticated }) => {
         <div className='mt-6 flex flex-wrap gap-3'>
           <Link
             to='/posts'
-            className={`${ctaBaseClass} gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-base text-white hover:from-indigo-500 hover:to-violet-500 hover:shadow-lg hover:shadow-indigo-500/30`}
+            className={`${ctaBaseClass} gap-2 bg-[var(--color-accent)] px-5 py-2.5 text-base text-[var(--color-accent-contrast)] hover:bg-[var(--color-accent-hover)] hover:shadow-lg`}
           >
             Explore All Articles <ArrowRight size={18} />
           </Link>
           {!isAuthenticated && (
             <Link
               to='/signup'
-              className={`${ctaBaseClass} bg-indigo-50 px-5 py-2.5 text-base text-indigo-700 hover:bg-indigo-100`}
+              className={`${ctaBaseClass} ui-chip px-5 py-2.5 text-base`}
             >
               Create Free Account
             </Link>
@@ -230,19 +228,19 @@ const HomeSkeleton = () => {
   return (
     <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
       <section className='max-w-5xl mx-auto text-center'>
-        <div className='mx-auto h-6 w-56 animate-pulse rounded-full bg-slate-200'></div>
-        <div className='mx-auto mt-6 h-14 w-full max-w-3xl animate-pulse rounded-2xl bg-slate-200'></div>
-        <div className='mx-auto mt-4 h-5 w-full max-w-2xl animate-pulse rounded-xl bg-slate-200'></div>
-        <div className='mx-auto mt-8 h-12 w-52 animate-pulse rounded-xl bg-slate-200'></div>
+        <div className='mx-auto h-6 w-56 animate-pulse rounded-full bg-[var(--color-surface-soft)]'></div>
+        <div className='mx-auto mt-6 h-14 w-full max-w-3xl animate-pulse rounded-2xl bg-[var(--color-surface-soft)]'></div>
+        <div className='mx-auto mt-4 h-5 w-full max-w-2xl animate-pulse rounded-xl bg-[var(--color-surface-soft)]'></div>
+        <div className='mx-auto mt-8 h-12 w-52 animate-pulse rounded-xl bg-[var(--color-surface-soft)]'></div>
       </section>
 
-      <section className='mt-14 grid overflow-hidden rounded-3xl border border-slate-200 bg-white md:grid-cols-[1.15fr_1fr]'>
-        <div className='aspect-[16/11] animate-pulse bg-slate-200 md:aspect-auto'></div>
+      <section className='mt-14 grid overflow-hidden rounded-3xl ui-surface md:grid-cols-[1.15fr_1fr]'>
+        <div className='aspect-[16/11] animate-pulse bg-[var(--color-surface-soft)] md:aspect-auto'></div>
         <div className='p-6 sm:p-8 space-y-3'>
-          <div className='h-3 w-40 animate-pulse rounded bg-slate-200'></div>
-          <div className='h-8 w-full animate-pulse rounded bg-slate-200'></div>
-          <div className='h-4 w-11/12 animate-pulse rounded bg-slate-200'></div>
-          <div className='h-4 w-9/12 animate-pulse rounded bg-slate-200'></div>
+          <div className='h-3 w-40 animate-pulse rounded bg-[var(--color-surface-soft)]'></div>
+          <div className='h-8 w-full animate-pulse rounded bg-[var(--color-surface-soft)]'></div>
+          <div className='h-4 w-11/12 animate-pulse rounded bg-[var(--color-surface-soft)]'></div>
+          <div className='h-4 w-9/12 animate-pulse rounded bg-[var(--color-surface-soft)]'></div>
         </div>
       </section>
 
@@ -250,7 +248,7 @@ const HomeSkeleton = () => {
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             key={`skeleton-card-${index}`}
-            className='h-[380px] animate-pulse rounded-3xl border border-slate-200 bg-slate-100'
+            className='h-[380px] animate-pulse rounded-3xl ui-surface-soft'
           />
         ))}
       </section>
@@ -261,11 +259,11 @@ const HomeSkeleton = () => {
 const HomeError = ({ onRetry }) => {
   return (
     <section className='mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8'>
-      <div className='rounded-3xl border border-red-200 bg-red-50 p-8'>
-        <h2 className='font-editorial text-3xl font-bold text-slate-900'>
+      <div className='rounded-3xl p-8 ui-alert-error'>
+        <h2 className='font-editorial text-3xl font-bold ui-heading'>
           We could not load the homepage content
         </h2>
-        <p className='mt-3 text-slate-600'>
+        <p className='mt-3 ui-text-muted'>
           Please try again, or continue to the full posts feed.
         </p>
 
@@ -275,7 +273,7 @@ const HomeError = ({ onRetry }) => {
           </Button>
           <Link
             to='/posts'
-            className={`${ctaBaseClass} gap-2 bg-indigo-50 px-5 py-2.5 text-base text-indigo-700 hover:bg-indigo-100`}
+            className={`${ctaBaseClass} ui-chip gap-2 px-5 py-2.5 text-base`}
           >
             Go to Posts <ArrowRight size={18} />
           </Link>
@@ -288,17 +286,17 @@ const HomeError = ({ onRetry }) => {
 const HomeEmpty = () => {
   return (
     <section className='mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8'>
-      <div className='rounded-3xl border border-slate-200 bg-white p-8'>
-        <h2 className='font-editorial text-3xl font-bold text-slate-900'>
+      <div className='rounded-3xl p-8 ui-surface'>
+        <h2 className='font-editorial text-3xl font-bold ui-heading'>
           No posts yet
         </h2>
-        <p className='mt-3 text-slate-600'>
+        <p className='mt-3 ui-text-muted'>
           New articles will appear here as soon as they are published.
         </p>
         <div className='mt-6'>
           <Link
             to='/posts'
-            className={`${ctaBaseClass} gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-base text-white hover:from-indigo-500 hover:to-violet-500 hover:shadow-lg hover:shadow-indigo-500/30`}
+            className={`${ctaBaseClass} gap-2 bg-[var(--color-accent)] px-5 py-2.5 text-base text-[var(--color-accent-contrast)] hover:bg-[var(--color-accent-hover)] hover:shadow-lg`}
           >
             Browse Posts <ArrowRight size={18} />
           </Link>
@@ -342,7 +340,7 @@ export const Home = () => {
       <LatestPostsSection posts={latestPosts} />
       <FinalCtaSection isAuthenticated={isAuthenticated} />
       {postsQuery.isFetching && (
-        <p className='mx-auto mt-8 max-w-6xl text-right text-xs text-slate-500'>
+        <p className='mx-auto mt-8 max-w-6xl text-right text-xs ui-text-muted'>
           Refreshing stories...
         </p>
       )}

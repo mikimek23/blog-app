@@ -70,7 +70,7 @@ export const Signup = () => {
   }
 
   return (
-    <div className='min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-indigo-950 flex items-center justify-center p-6'>
+    <div className='min-h-screen ui-app-bg flex items-center justify-center p-6'>
       <AuthForm
         formData={formFields}
         islogin={false}

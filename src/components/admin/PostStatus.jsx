@@ -21,37 +21,37 @@ export const PostStatus = () => {
   return (
     <div className='space-y-6'>
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-        <div className='bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4'>
-          <div className='w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center'>
+        <div className='p-6 rounded-3xl flex items-center gap-4 ui-surface'>
+          <div className='w-14 h-14 rounded-2xl ui-surface-soft text-[var(--color-accent)] flex items-center justify-center'>
             <FileText size={24} />
           </div>
           <div>
-            <p className='text-sm font-semibold text-slate-400'>Total Posts</p>
-            <h3 className='text-2xl font-bold text-slate-800'>
+            <p className='text-sm font-semibold ui-text-muted'>Total Posts</p>
+            <h3 className='text-2xl font-bold ui-heading'>
               {isLoading ? '...' : totalPosts}
             </h3>
           </div>
         </div>
-        <div className='bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4'>
-          <div className='w-14 h-14 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center'>
+        <div className='p-6 rounded-3xl flex items-center gap-4 ui-surface'>
+          <div className='w-14 h-14 rounded-2xl ui-surface-soft text-[var(--color-success)] flex items-center justify-center'>
             <Eye size={24} />
           </div>
           <div>
-            <p className='text-sm font-semibold text-slate-400'>
+            <p className='text-sm font-semibold ui-text-muted'>
               Posts With Cover
             </p>
-            <h3 className='text-2xl font-bold text-slate-800'>
+            <h3 className='text-2xl font-bold ui-heading'>
               {isLoading ? '...' : postsWithImage}
             </h3>
           </div>
         </div>
-        <div className='bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4'>
-          <div className='w-14 h-14 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center'>
+        <div className='p-6 rounded-3xl flex items-center gap-4 ui-surface'>
+          <div className='w-14 h-14 rounded-2xl ui-surface-soft text-[var(--color-accent)] flex items-center justify-center'>
             <TrendingUp size={24} />
           </div>
           <div>
-            <p className='text-sm font-semibold text-slate-400'>Tagged Posts</p>
-            <h3 className='text-2xl font-bold text-slate-800'>
+            <p className='text-sm font-semibold ui-text-muted'>Tagged Posts</p>
+            <h3 className='text-2xl font-bold ui-heading'>
               {isLoading ? '...' : taggedPosts}
             </h3>
           </div>
@@ -64,11 +64,9 @@ export const PostStatus = () => {
         </div>
       )}
 
-      <div className='bg-white rounded-3xl border border-slate-100 shadow-sm p-8 text-center mt-8'>
-        <h3 className='text-xl font-bold text-slate-800 mb-2'>
-          Ready to write?
-        </h3>
-        <p className='text-slate-500 mb-6'>
+      <div className='rounded-3xl p-8 text-center mt-8 ui-surface'>
+        <h3 className='text-xl font-bold ui-heading mb-2'>Ready to write?</h3>
+        <p className='ui-text-muted mb-6'>
           Share your latest thoughts with your readers.
         </p>
         <Button
