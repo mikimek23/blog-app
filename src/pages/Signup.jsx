@@ -1,8 +1,8 @@
 import { Lock, Mail, UserPlus } from 'lucide-react'
-import React, { useState } from 'react'
-import { AuthForm } from '../components/authForm'
+import { useState } from 'react'
+import { AuthForm } from '../components/AuthForm.jsx'
 import { useMutation } from '@tanstack/react-query'
-import { userRegister } from '../api/auth'
+import { userRegister } from '../api/auth.js'
 import { useNavigate } from 'react-router-dom'
 
 export const Signup = () => {
@@ -12,11 +12,14 @@ export const Signup = () => {
     password: '',
   })
   const [message, setMessage] = useState([null, null])
-  const handleChange = (e) => {
-    const { name, value } = e.target
+  const navigate = useNavigate()
+
+  const handleChange = (event) => {
+    const { name, value } = event.target
     setData((prev) => ({ ...prev, [name]: value }))
   }
-  const FormData = [
+
+  const formFields = [
     {
       label: 'Username',
       icon: UserPlus,
@@ -38,43 +41,38 @@ export const Signup = () => {
       icon: Lock,
       type: 'password',
       value: data.password,
-      placeholder: '••••••••',
+      placeholder: '********',
       name: 'password',
     },
   ]
-  const navigate = useNavigate()
+
   const signupMutation = useMutation({
     mutationFn: () => userRegister(data),
-    onSuccess: (res) => {
-      setMessage([res?.data?.message, true])
-      setData({
-        username: '',
-        email: '',
-        password: '',
-      })
+    onSuccess: () => {
+      setMessage(['Registration completed', true])
+      setData({ username: '', email: '', password: '' })
       setTimeout(() => {
         navigate('/login')
-      }, 2000)
+      }, 500)
     },
     onError: (error) => {
-      setMessage([error.response?.data?.message, false])
-      setData({
-        username: '',
-        email: '',
-        password: '',
-      })
+      setMessage([
+        error.response?.data?.message || 'Registration failed',
+        false,
+      ])
+      setData({ username: '', email: '', password: '' })
     },
   })
-  const handleSubmit = (e) => {
-    e.preventDefault()
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
     signupMutation.mutate()
   }
-  const user = signupMutation?.data ?? {}
-  console.log(user)
+
   return (
     <div className='min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-indigo-950 flex items-center justify-center p-6'>
       <AuthForm
-        formData={FormData}
+        formData={formFields}
         islogin={false}
         onChange={handleChange}
         handleSubmit={handleSubmit}

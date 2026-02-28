@@ -1,108 +1,96 @@
-import mongoose from 'mongoose'
 import { beforeEach, describe, expect, test } from '@jest/globals'
-import { User } from '../models/users.js'
 import bcrypt from 'bcrypt'
-import dotenv from 'dotenv'
-import { userRegister } from '../../../src/api/auth.js'
-import { userLogin } from '../services/users.js'
-dotenv.config()
-describe('User register', () => {
-  test('with all parameters must succeed', async () => {
-    const user = {
-      username: 'blog1',
-      email: 'blog1@test.com',
-      password: 'test12',
-    }
+import { User } from '../models/users.js'
+import {
+  logOutUser,
+  refreshUserSession,
+  userLogin,
+  userRegister,
+} from '../services/users.js'
 
-    const newUser = await userRegister(user)
-    expect(newUser._id).toBeInstanceOf(mongoose.Types.ObjectId)
-
-    const findUser = await User.findById(newUser._id)
-    expect(findUser.username).toBe(user.username)
-    expect(findUser.email).toBe(user.email)
-    expect(findUser.role).toBe('user')
-  })
-  test('without username must fail', async () => {
-    const user = {
-      email: 'blog1@test.com',
-      password: 'test12',
-    }
-    try {
-      await userRegister(user)
-    } catch (err) {
-      expect(err).toBeInstanceOf(mongoose.Error.ValidationError)
-      expect(err.message).toContain('`username` is required')
-    }
-  })
-  test('without email must fail', async () => {
-    const user = {
-      username: 'blog1',
-      password: 'test12',
-    }
-    try {
-      await userRegister(user)
-    } catch (err) {
-      expect(err).toBeInstanceOf(mongoose.Error.ValidationError)
-      expect(err.message).toContain('`email` is required')
-    }
-  })
-  test('without password must fail', async () => {
-    const user = {
-      username: 'blog1',
-      email: 'blog1@test.com',
-    }
-    try {
-      await userRegister(user)
-    } catch (err) {
-      expect(err.name).toBe('Error')
-      expect(err.message).toContain('data and salt arguments required')
-    }
-  })
-})
-let user = []
-const hashedPassword = await bcrypt.hash('test12', 10)
 beforeEach(async () => {
+  process.env.ACCESS_TOKEN_SECRET =
+    process.env.ACCESS_TOKEN_SECRET || 'test-access-secret'
+  process.env.REFRESH_TOKEN_SECRET =
+    process.env.REFRESH_TOKEN_SECRET || 'test-refresh-secret'
   await User.deleteMany({})
-  user = []
-  const newUser = await User.create({
-    username: 'blog2',
-    email: 'blog2@test.com',
-    password: hashedPassword,
-  })
-  user.push(await newUser.save())
 })
-describe('login', () => {
-  test('with all parameter must be succed', async () => {
-    const user = {
-      email: 'blog2@test.com',
-      password: 'test12',
+
+describe('user services', () => {
+  test('registers a new user with hashed password', async () => {
+    const payload = {
+      username: 'blogger',
+      email: 'blogger@test.com',
+      password: 'test1234',
     }
-    const logedin = await userLogin(user)
-    expect(logedin.token).toBeDefined()
-    expect(logedin.email).toBe(user.email)
+
+    const user = await userRegister(payload)
+
+    expect(user._id).toBeDefined()
+    expect(user.email).toBe(payload.email)
+    expect(user.password).not.toBe(payload.password)
+    expect(await bcrypt.compare(payload.password, user.password)).toBe(true)
   })
-  test('with incorrect email  must fail', async () => {
-    const user = {
-      email: 'blog@test.com',
-      password: 'test12',
-    }
-    try {
-      await userLogin(user)
-    } catch (error) {
-      expect(error.name).toBe('Error')
-      expect(error.message).toBe('Incorrect Email or Password!')
-    }
+
+  test('logs in and stores refresh token hash', async () => {
+    const registered = await userRegister({
+      username: 'blogger',
+      email: 'blogger@test.com',
+      password: 'test1234',
+    })
+
+    const session = await userLogin({
+      email: 'blogger@test.com',
+      password: 'test1234',
+    })
+
+    expect(session.accessToken).toBeDefined()
+    expect(session.refreshToken).toBeDefined()
+    expect(session.user.email).toBe('blogger@test.com')
+
+    const persisted = await User.findById(registered._id)
+    expect(persisted.refreshTokenHash).toBeDefined()
+    expect(persisted.refreshTokenHash).not.toBe(session.refreshToken)
   })
-  test('with incorrect password  must fail', async () => {
-    const user = {
-      email: 'blog@test.com',
-      password: '1234',
-    }
-    try {
-      await userLogin(user)
-    } catch (error) {
-      expect(error.name).toBe('Error')
-      expect(error.message).toBe('Incorrect Email or Password!')
-    }
+
+  test('refresh rotates refresh token and invalidates the old token', async () => {
+    await userRegister({
+      username: 'blogger',
+      email: 'blogger@test.com',
+      password: 'test1234',
+    })
+    const firstSession = await userLogin({
+      email: 'blogger@test.com',
+      password: 'test1234',
+    })
+
+    const rotated = await refreshUserSession(firstSession.refreshToken)
+    expect(rotated.accessToken).toBeDefined()
+    expect(rotated.refreshToken).toBeDefined()
+    expect(rotated.refreshToken).not.toBe(firstSession.refreshToken)
+
+    await expect(
+      refreshUserSession(firstSession.refreshToken),
+    ).rejects.toMatchObject({
+      status: 403,
+    })
+  })
+
+  test('logout clears persisted refresh session', async () => {
+    const user = await userRegister({
+      username: 'blogger',
+      email: 'blogger@test.com',
+      password: 'test1234',
+    })
+    const session = await userLogin({
+      email: 'blogger@test.com',
+      password: 'test1234',
+    })
+
+    await logOutUser(session.refreshToken)
+    const persisted = await User.findById(user._id)
+
+    expect(persisted.refreshTokenHash).toBeNull()
+    expect(persisted.refreshTokenExpiresAt).toBeNull()
   })
 })

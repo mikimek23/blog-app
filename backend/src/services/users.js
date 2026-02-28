@@ -1,99 +1,151 @@
 import bcrypt from 'bcrypt'
+import crypto from 'node:crypto'
 import { User } from '../models/users.js'
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt.js'
 import jwt from 'jsonwebtoken'
-//register user
+import { getEnv } from '../config/env.js'
+import { createHttpError } from '../utils/response.js'
 
 export const userRegister = async ({ username, email, password }) => {
-  const findUser = await User.findOne({ email })
+  const findUser = await User.findOne({
+    $or: [{ email: email.toLowerCase() }, { username: username.trim() }],
+  })
   if (findUser) {
-    const error = new Error('user alreay exist')
-    error.status = 400
-    throw error
+    throw createHttpError(400, 'User already exists')
   }
+
   const hashedPassword = await bcrypt.hash(password, 10)
-  const newUser = new User({ username, email, password: hashedPassword })
+  const newUser = new User({
+    username: username.trim(),
+    email: email.toLowerCase(),
+    password: hashedPassword,
+  })
   return await newUser.save()
 }
 
-//login
+const hashRefreshToken = (refreshToken) => {
+  return crypto.createHash('sha256').update(refreshToken).digest('hex')
+}
+
+const verifyRefreshToken = (refreshToken) => {
+  const env = getEnv()
+  return jwt.verify(refreshToken, env.refreshTokenSecret)
+}
+
+const toUserPayload = (user) => ({
+  id: String(user._id),
+  username: user.username,
+  email: user.email,
+  role: user.role,
+  bio: user.bio || '',
+  avatarUrl: user.avatarUrl || '',
+  isActive: user.isActive,
+})
+
 export const userLogin = async ({ email, password }) => {
-  const findUser = await User.findOne({ email })
+  const findUser = await User.findOne({ email: email.toLowerCase() })
   if (!findUser) {
-    const error = new Error('Incorrect Email or Password!')
-    error.status = 400
-    throw error
+    throw createHttpError(400, 'Incorrect email or password')
   }
+  if (!findUser.isActive) {
+    throw createHttpError(403, 'Account is inactive')
+  }
+
   const isMatch = await bcrypt.compare(password, findUser.password)
   if (!isMatch) {
-    const error = new Error('Incorrect Email or password!')
-    error.status = 400
-    throw error
+    throw createHttpError(400, 'Incorrect email or password')
   }
-  const accessToken = generateAccessToken(findUser)
 
+  const accessToken = generateAccessToken(findUser)
   const refreshToken = generateRefreshToken(findUser)
-  findUser.refreshToken = refreshToken
+  const payload = verifyRefreshToken(refreshToken)
+  findUser.refreshTokenHash = hashRefreshToken(refreshToken)
+  findUser.refreshTokenExpiresAt = new Date(payload.exp * 1000)
   await findUser.save()
 
-  const res = {
+  return {
     accessToken,
     refreshToken,
-    user: {
-      id: findUser._id,
-      username: findUser.username,
-      email: findUser.email,
-      role: findUser.role,
-    },
+    user: toUserPayload(findUser),
   }
-  return res
 }
-// refresh token session
+
 export const refreshUserSession = async (refreshToken) => {
   let payload
   try {
-    payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
+    payload = verifyRefreshToken(refreshToken)
   } catch {
-    const error = new Error('Invalid refresh token')
-    error.status = 403
-    throw error
+    throw createHttpError(403, 'Invalid refresh token')
   }
+
   if (payload.type && payload.type !== 'refresh') {
-    const error = new Error('Invalid token type')
-    error.status = 403
-    throw error
+    throw createHttpError(403, 'Invalid token type')
   }
+
   const user = await User.findById(payload.sub)
-  if (!user || user.refreshToken !== refreshToken) {
-    const error = new Error('Invalid refresh token')
-    error.status = 403
-    throw error
+  if (!user || !user.refreshTokenHash) {
+    throw createHttpError(403, 'Invalid refresh token')
   }
+
+  if (
+    user.refreshTokenExpiresAt &&
+    user.refreshTokenExpiresAt.getTime() < Date.now()
+  ) {
+    user.refreshTokenHash = null
+    user.refreshTokenExpiresAt = null
+    await user.save()
+    throw createHttpError(403, 'Refresh token expired')
+  }
+
+  const currentHash = hashRefreshToken(refreshToken)
+  if (currentHash !== user.refreshTokenHash) {
+    throw createHttpError(403, 'Invalid refresh token')
+  }
+
   const newAccessToken = generateAccessToken(user)
   const newRefreshToken = generateRefreshToken(user)
-  user.refreshToken = newRefreshToken
+  const newPayload = verifyRefreshToken(newRefreshToken)
+  user.refreshTokenHash = hashRefreshToken(newRefreshToken)
+  user.refreshTokenExpiresAt = new Date(newPayload.exp * 1000)
   await user.save()
-  return { accessToken: newAccessToken, refreshToken: newRefreshToken }
+
+  return {
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+    user: toUserPayload(user),
+  }
 }
-//log out
+
 export const logOutUser = async (refreshToken) => {
   if (!refreshToken) return
-  const user = await User.findOne({ refreshToken })
-  if (!user) return
-  user.refreshToken = undefined
-  await user.save()
+
+  try {
+    const payload = verifyRefreshToken(refreshToken)
+    const user = await User.findById(payload.sub)
+    if (!user) return
+
+    const currentHash = hashRefreshToken(refreshToken)
+    if (user.refreshTokenHash !== currentHash) return
+
+    user.refreshTokenHash = null
+    user.refreshTokenExpiresAt = null
+    await user.save()
+  } catch {
+    return
+  }
 }
-//get user by id
-export const getuserById = async (userId) => {
+
+export const getUserById = async (userId) => {
   const user = await User.findById(userId)
   if (!user) {
-    const error = new Error('User not found')
-    error.status = 404
-    throw error
+    throw createHttpError(404, 'User not found')
   }
-  return {
-    id: user._id,
-    username: user.username,
-    email: user.email,
-  }
+  return toUserPayload(user)
+}
+
+export const getUserByAuth = async (auth) => {
+  if (!auth?.sub) throw createHttpError(401, 'Unauthorized')
+  const user = await User.findById(auth.sub)
+  if (!user) throw createHttpError(404, 'User not found')
+  return toUserPayload(user)
 }

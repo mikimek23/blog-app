@@ -1,6 +1,6 @@
 import { Lock, Mail } from 'lucide-react'
-import React, { useState } from 'react'
-import { AuthForm } from '../components/authForm'
+import { useState } from 'react'
+import { AuthForm } from '../components/AuthForm.jsx'
 import { useMutation } from '@tanstack/react-query'
 import { userLogin } from '../api/auth.js'
 import { useNavigate } from 'react-router-dom'
@@ -11,12 +11,14 @@ export const Login = () => {
     password: '',
   })
   const [message, setMessage] = useState([null, null])
-  const handleChange = (e) => {
-    const { name, value } = e.target
+  const navigate = useNavigate()
+
+  const handleChange = (event) => {
+    const { name, value } = event.target
     setData((prev) => ({ ...prev, [name]: value }))
   }
-  const navigate = useNavigate()
-  const FormData = [
+
+  const formFields = [
     {
       label: 'Email',
       icon: Mail,
@@ -30,39 +32,34 @@ export const Login = () => {
       icon: Lock,
       type: 'password',
       value: data.password,
-      placeholder: '••••••••',
+      placeholder: '********',
       name: 'password',
     },
   ]
+
   const loginMutation = useMutation({
     mutationFn: () => userLogin(data),
-    onSuccess: (res) => {
-      setMessage([res?.data?.message, true])
-      setData({
-        email: '',
-        password: '',
-      })
-      setTimeout(() => {
-        navigate('/')
-      }, 2000)
+    onSuccess: () => {
+      setMessage(['You are logged in', true])
+      setData({ email: '', password: '' })
+      navigate('/')
     },
     onError: (error) => {
-      setMessage([error.response?.data?.message, false])
-      setData({
-        email: '',
-        password: '',
-      })
+      setMessage([error.response?.data?.message || 'Login failed', false])
+      setData({ email: '', password: '' })
     },
   })
-  const handleSubmit = (e) => {
-    e.preventDefault()
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
     loginMutation.mutate()
   }
+
   return (
     <div className='min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-indigo-950 flex items-center justify-center p-6'>
       <AuthForm
-        formData={FormData}
-        islogin={true}
+        formData={formFields}
+        islogin
         onChange={handleChange}
         handleSubmit={handleSubmit}
         message={message}

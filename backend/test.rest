@@ -3,9 +3,9 @@ POST http://localhost:5001/api/users/register
 Content-Type: application/json
 
 {
-    "username":"test",
-    "email":"test@blog.com",
-    "password":"test123"
+    "username":"Miki Mek",
+    "email":"miki@blog.com",
+    "password":"Blog@2026"
 }
 ### login
 POST http://localhost:5001/api/users/login
@@ -13,7 +13,7 @@ Content-Type: application/json
 
 {
     "email":"test@blog.com",
-    "password":"test123"
+    "password":"123456"
 }
 
 ### refresh token
@@ -26,3 +26,36 @@ Content-Type: application/json
 
 ### get user by id
 GET http://localhost:5001/api/users/698f24dd125e5b9ce0459c27
+
+
+### this is check for the posts 
+### create post check
+POST http://localhost:5001/api/posts
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OTk4MDUyYTQ2MGYzYzA1ODJjMzNhYjQiLCJyb2xlIjoidXNlciIsImlhdCI6MTc3MTY2MTYxOSwiZXhwIjoxNzcxNjYyNTE5fQ.BFprsXQvBnEgj3SFZ6FUL884ZKjDAx1Nc3iMOTIB24Q
+   
+{
+    "title": "Mastering Tailwind CSS for Scalable Projects",
+    "content":"Minimalism in UI design is more than just 'white space'. It's about intentionality. In this post, we explore the core pillars of modern minimalism: Typography, Purposeful Color, and Motion. When we remove the clutter, the user's focus naturally gravitates towards the content that matters most...",
+    "tags":["dev", "UI"],
+    "imageUrl":"https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&q=80&w=800.jpg"
+}
+### list post
+GET http://localhost:5001/api/posts
+
+###list post by author
+GET http://localhost:5001/api/posts?author=qwer
+
+### update author
+PATCH http://localhost:5001/api/posts/699969d068fb6698a8a8ef76
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OTk4MDUyYTQ2MGYzYzA1ODJjMzNhYjQiLCJyb2xlIjoidXNlciIsImlhdCI6MTc3MTY2MTkxMSwiZXhwIjoxNzcxNjYyODExfQ.Ix4onMYhlYN94XJ4Bjt5wRFaHf_SLFZoOcOupyY0eWE
+
+   {
+   "title": "Mastering Tailwind CSS for Scalable Projects",
+    "content":"Minimalism in UI design is more than just 'white space'. It's about intentionality. In this post, we explore the core pillars of modern minimalism: Typography, Purposeful Color, and Motion. When we remove the clutter, the user's focus naturally gravitates towards the content that matters most...",
+    "tags":["dev", "UI","Frontend"]
+}
+### delete post
+DELETE http://localhost:5001/api/posts/699969d068fb6698a8a8ef76
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OTk4MDUyYTQ2MGYzYzA1ODJjMzNhYjQiLCJyb2xlIjoidXNlciIsImlhdCI6MTc3MTY2MTkxMSwiZXhwIjoxNzcxNjYyODExfQ.Ix4onMYhlYN94XJ4Bjt5wRFaHf_SLFZoOcOupyY0eWE

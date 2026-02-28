@@ -1,61 +1,132 @@
-import React, { Fragment } from 'react'
-import { Blogcard } from '../components/Blogcard'
+import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Blogcard } from '../components/Blogcard.jsx'
+import { useQuery } from '@tanstack/react-query'
+import { listPosts } from '../api/posts.js'
+import { Search, X } from 'lucide-react'
+import { Button } from '../components/Button.jsx'
 
 export const Bloglist = () => {
-  const MOCK_POSTS = [
-    {
-      id: 1,
-      title: 'The Future of Minimalist UI Design in 2025',
-      excerpt:
-        'Discover how simplified interfaces are driving higher user engagement and reducing cognitive load in modern web applications.',
-      author: 'Alex Rivera',
-      createdDate: 'Oct 12, 2024',
-      updatedDate: 'Oct 15, 2024',
-      likes: 124,
-      readTime: '5 min read',
-      image:
-        'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&q=80&w=800',
-      content:
-        "Minimalism in UI design is more than just 'white space'. It's about intentionality. In this post, we explore the core pillars of modern minimalism: Typography, Purposeful Color, and Motion. When we remove the clutter, the user's focus naturally gravitates towards the content that matters most...",
-    },
-    {
-      id: 2,
-      title: 'Mastering Tailwind CSS for Scalable Projects',
-      excerpt:
-        'Learn the advanced patterns for maintaining large-scale CSS architectures using utility-first frameworks without the bloat.',
-      author: 'Sarah Chen',
-      createdDate: 'Nov 02, 2024',
-      updatedDate: 'Nov 03, 2024',
-      likes: 89,
-      readTime: '8 min read',
-      image:
-        'https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&q=80&w=800',
-      content:
-        'Tailwind has changed the way we think about styling. By using a configuration-driven approach, teams can ensure visual consistency across thousands of components...',
-    },
-    {
-      id: 3,
-      title: 'The Rise of Edge Computing in Web Development',
-      excerpt:
-        'Why moving your logic closer to the user is the next big step for performance-critical applications and global distribution.',
-      author: 'Jordan Smith',
-      createdDate: 'Dec 20, 2024',
-      updatedDate: 'Dec 21, 2024',
-      likes: 215,
-      readTime: '6 min read',
-      image:
-        'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800',
-      content:
-        'Edge computing is transforming how we deploy applications. By executing code at CDN nodes, we reduce latency to near-zero for users regardless of their location...',
-    },
-  ]
+  const [searchInput, setSearchInput] = useState('')
+  const [search, setSearch] = useState('')
+  const [cursorStack, setCursorStack] = useState([null])
+  const currentCursor = cursorStack[cursorStack.length - 1]
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const nextSearch = searchInput.trim()
+      setSearch((current) => {
+        if (current === nextSearch) return current
+        setCursorStack([null])
+        return nextSearch
+      })
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [searchInput])
+
+  const handleClearSearch = () => {
+    setSearchInput('')
+  }
+
+  const queryParams = useMemo(
+    () => ({
+      limit: 9,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+      cursor: currentCursor || undefined,
+      search: search || undefined,
+    }),
+    [currentCursor, search],
+  )
+
+  const { data, isLoading, isFetching, isError } = useQuery({
+    queryKey: ['posts', queryParams],
+    queryFn: () => listPosts(queryParams),
+    placeholderData: (previousData) => previousData,
+  })
+
+  const posts = data?.data || []
+  const meta = data?.meta
+
+  if (isLoading) {
+    return <div className='text-center text-slate-500'>Loading posts...</div>
+  }
+
+  if (isError) {
+    return (
+      <div className='text-center'>
+        <p className='text-red-600'>Failed to load posts.</p>
+      </div>
+    )
+  }
+
   return (
-    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-      {MOCK_POSTS.map((post) => (
-        <Fragment key={post.id}>
-          <Blogcard post={post} />
-        </Fragment>
-      ))}
+    <div className='space-y-8'>
+      <div className='max-w-xl mx-auto'>
+        <div className='relative'>
+          <Search
+            className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-800'
+            size={18}
+          />
+          <input
+            type='text'
+            placeholder='Search posts by keyword...'
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+            className='w-full rounded-xl border border-slate-200 pl-10 pr-10 py-2.5 outline-none focus:border-blue-500 text-gray-500'
+          />
+          {searchInput && (
+            <button
+              type='button'
+              className='absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700'
+              onClick={handleClearSearch}
+              aria-label='Clear search'
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
+        {isFetching && (
+          <p className='text-xs text-slate-500 mt-2'>Updating results...</p>
+        )}
+      </div>
+
+      {posts.length === 0 ? (
+        <div className='text-center text-slate-500'>
+          {search ? 'No posts matched your search.' : 'No posts available yet.'}
+        </div>
+      ) : (
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+          {posts.map((post) => (
+            <Fragment key={post._id}>
+              <Blogcard post={post} />
+            </Fragment>
+          ))}
+        </div>
+      )}
+
+      <div className='flex items-center justify-center gap-3'>
+        <Button
+          type='button'
+          variant='secondary'
+          disabled={cursorStack.length <= 1}
+          onClick={() => {
+            setCursorStack((stack) => stack.slice(0, -1))
+          }}
+        >
+          Previous
+        </Button>
+        <Button
+          type='button'
+          variant='secondary'
+          disabled={!meta?.hasNextPage || !meta?.nextCursor}
+          onClick={() => {
+            setCursorStack((stack) => [...stack, meta.nextCursor])
+          }}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   )
 }

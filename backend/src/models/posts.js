@@ -6,10 +6,22 @@ const postSchema = new Schema(
     content: { type: String, required: true },
     author: { type: mongoose.Types.ObjectId, ref: 'user', required: true },
     tags: [String],
-    slung: { type: String, unique: true, lowercase: true },
+    slug: {
+      type: String,
+      unique: true,
+      lowercase: true,
+      required: true,
+      trim: true,
+    },
+    imageUrl: { type: String, default: null },
+    imagePublicId: { type: String, default: null },
   },
   {
     timestamps: true,
   },
 )
+
+postSchema.index({ createdAt: -1 })
+postSchema.index({ title: 'text', content: 'text' })
+
 export const Post = mongoose.model('post', postSchema)
