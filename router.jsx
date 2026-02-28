@@ -36,7 +36,7 @@ export const router = createBrowserRouter([
             element: <Bloglist />,
           },
           {
-            path: 'posts/:id',
+            path: 'posts/:id/:slug?',
             element: <Post />,
           },
           {

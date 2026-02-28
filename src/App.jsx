@@ -4,11 +4,11 @@ import { Outlet } from 'react-router-dom'
 
 function App() {
   return (
-    <div className='space-y-16 animate-in fade-in duration-700'>
+    <div className='min-h-screen'>
       <Navbar />
-
-      <div className='text-center py-12'></div>
-      <Outlet />
+      <main id='main-content' className='pt-24 pb-16'>
+        <Outlet />
+      </main>
       <ToastContainer />
     </div>
   )

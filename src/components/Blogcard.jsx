@@ -1,5 +1,6 @@
 import { Calendar, Clock, Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import slug from 'slug'
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800'
@@ -14,7 +15,7 @@ export const Blogcard = ({ post }) => {
   const authorName = post?.author?.username || post?.authorName || 'Unknown'
   return (
     <Link
-      to={`/posts/${id}`}
+      to={`/posts/${id}/${slug(post?.slug)}`}
       className='group bg-white rounded-3xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:shadow-slate-200 transition-all duration-300 cursor-pointer flex flex-col h-full'
     >
       <div className='relative h-48 overflow-hidden'>
@@ -24,8 +25,11 @@ export const Blogcard = ({ post }) => {
           className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500'
         />
         <div className='absolute top-4 left-4 flex flex-wrap gap-2 '>
-          {post?.tags.map((tag) => (
-            <span className='bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold text-blue-600 shadow-sm'>
+          {post?.tags.map((tag, index) => (
+            <span
+              key={`${tag}-${index}`}
+              className='bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold text-blue-600 shadow-sm'
+            >
               {tag.toUpperCase()}
             </span>
           ))}

@@ -4,10 +4,14 @@ import { useQuery } from '@tanstack/react-query'
 import { listPosts } from '../api/posts.js'
 import { Search, X } from 'lucide-react'
 import { Button } from '../components/Button.jsx'
+import { useSearchParams } from 'react-router-dom'
 
 export const Bloglist = () => {
-  const [searchInput, setSearchInput] = useState('')
-  const [search, setSearch] = useState('')
+  const [searchParams] = useSearchParams()
+  const querySearch = searchParams.get('search')?.trim() || ''
+
+  const [searchInput, setSearchInput] = useState(querySearch)
+  const [search, setSearch] = useState(querySearch)
   const [cursorStack, setCursorStack] = useState([null])
   const currentCursor = cursorStack[cursorStack.length - 1]
 
