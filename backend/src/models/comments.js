@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 
-const COMMENT_TTL_MS = 30 * 1000
+const COMMENT_TTL_MS = 3 * 24 * 60 * 60 * 1000
 
 const commentSchema = new Schema(
   {
