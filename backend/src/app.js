@@ -33,13 +33,17 @@ app.use(express.json({ limit: '1mb' }))
 app.use(cookieParser())
 app.use(sanitizeInput)
 app.use(globalRateLimiter)
+
+const allowedOrigins = process.env.CORS_ORIGINS.split(',')
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || env.corsOrigins.includes(origin)) {
-        return callback(null, true)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by CORS'))
       }
-      return callback(new Error('Not allowed by CORS'))
     },
     credentials: true,
   }),
