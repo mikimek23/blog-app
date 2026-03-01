@@ -1,5 +1,50 @@
 # Full App Documentation
+## Table of Contents
 
+- [1. Overview](#1-overview)
+- [2. Architecture](#2-architecture)
+  - [2.1 High-level flow](#21-high-level-flow)
+  - [2.2 Flow Diagram](#22-flow-diagram)
+  - [2.3 Tech stack](#23-tech-stack)
+- [3. Project Structure](#3-project-structure)
+- [4. Setup and Running](#4-setup-and-running)
+  - [4.1 Prerequisites](#41-prerequisites)
+  - [4.2 Install dependencies](#42-install-dependencies)
+  - [4.3 Environment variables](#43-environment-variables)
+  - [4.4 Development run](#44-development-run)
+- [5. Frontend](#5-frontend)
+  - [5.1 Route map](#51-route-map)
+  - [5.2 Frontend state patterns](#52-frontend-state-patterns)
+  - [5.3 Theme system](#53-theme-system)
+  - [5.4 Styling system](#54-styling-system)
+- [6. Backend](#6-backend)
+  - [6.1 App pipeline](#61-app-pipeline-backendsrcappjs)
+  - [6.2 Security and middleware](#62-security-and-middleware)
+  - [6.3 Data models](#63-data-models)
+- [7. Authentication and Session Lifecycle](#7-authentication-and-session-lifecycle)
+  - [7.1 Token Rotation, Reuse, and Cookie Security](#71-token-rotation-reuse-and-cookie-security)
+  - [7.2 Security Properties](#72-security-properties)
+- [8. API Reference](#8-api-reference)
+  - [8.1 Health](#81-health)
+  - [8.2 Auth](#82-auth)
+  - [8.3 Posts](#83-posts)
+    - [8.3.1 Pagination strategy](#831-pagination-strategy)
+  - [8.4 Admin Posts](#84-admin-posts)
+  - [8.5 Comments and Moderation](#85-comments-and-moderation)
+  - [8.6 Likes](#86-likes)
+  - [8.7 Profiles](#87-profiles)
+  - [8.8 Admin User Management](#88-admin-user-management)
+- [9. Admin Workflow](#9-admin-workflow)
+  - [9.1 Access control](#91-access-control)
+  - [9.2 Post management](#92-post-management)
+  - [9.3 Moderation](#93-moderation)
+- [10. Validation Rules (Selected)](#10-validation-rules-selected)
+- [11. Testing and Quality](#11-testing-and-quality)
+- [12. Deployment Notes](#12-deployment-notes)
+- [13. Troubleshooting](#13-troubleshooting)
+- [14. Known Technical Notes](#14-known-technical-notes)
+- [15. Maintenance Checklist](#15-maintenance-checklist)
+- [16. Future Enhancements](#16-future-enhancements)
 ## 1. Overview
 
 `my_blog` is a full-stack blog platform with a React frontend and an Express/MongoDB backend.
@@ -17,6 +62,8 @@ Core capabilities:
   - Moderation queue
 - App-wide theme modes: `light`, `dark`, `system`
 
+- [Live Demo](https://mblog-frl0.onrender.com)
+- [GitHub Repository](https://github.com/mikimek23/blog-app)
 ---
 
 ## 2. Architecture
@@ -28,8 +75,10 @@ Core capabilities:
 3. Frontend stores `accessToken` in in-memory store (`tokenStore`).
 4. On `401`, Axios interceptor calls `/auth/refresh` and retries original request.
 5. Session bootstrap runs on app start from `SessionLayout`.
+### 2.2 Flow Diagram
+![Architecture Diagram](./flow_diagram.png)
 
-### 2.2 Tech stack
+### 2.3 Tech stack
 
 Frontend:
 - React 19
@@ -53,31 +102,34 @@ Backend:
 
 ```text
 my_blog/
-  src/
-    api/                    # frontend API clients
-    components/             # reusable UI components
-    components/admin/       # admin UI
-    components/theme/       # theme switch UI
-    hooks/                  # auth/theme hooks
-    layout/                 # route layouts
-    pages/                  # route pages
-    theme/                  # theme provider/runtime
-    index.css               # global tokens and theme styling
-    main.jsx                # app bootstrap
-    App.jsx                 # app shell
-  backend/
-    src/
-      app.js                # express app wiring
-      index.js              # server entrypoint
-      routes/               # route definitions
-      controllers/          # request handlers
-      services/             # business logic
-      models/               # mongoose models
-      middlewares/          # auth, security, rate-limit, upload, errors
-      config/               # env and cloudinary config
-      tests/                # jest setup helpers
-  router.jsx                # frontend route map
-  docs/FULL_APP_DOCUMENTATION.md
+├── src/
+|  ├── api/                        # frontend API clients
+|  ├── components/                 # reusable UI components
+|  |   ├── admin/                  # admin UI
+|  |   ├── comments                # comment panal UI
+|  |   ├── theme/                  # theme switch UI
+|  |   └──routes/                  # admin and protected route outlet
+|  ├── hooks/                      # auth/theme hooks
+|  ├── layout/                     # route layouts
+|  ├── pages/                      # route pages
+|  ├── theme/                      # theme provider/runtime
+|  ├── index.css                   # global tokens and theme styling
+|  ├── main.jsx                    # app bootstrap
+|  └── App.jsx                     # app shell
+├── backend/
+|  └── src/
+|     ├── app.js                   # express app wiring
+|     ├── index.js                 # server entrypoint
+|     ├── routes/                  # route definitions
+|     ├── controllers/             # request handlers
+|     ├── services/                # business logic
+|     ├── models/                  # mongoose models
+|     ├── middlewares/             # auth, security, rate-limit, upload, errors
+|     ├── config/                  # env and cloudinary config
+|     └── tests/                   # jest setup helpers
+├── router.jsx                     # frontend route map
+└── docs/
+    └── FULL_APP_DOCUMENTATION.md  # full documentation
 ```
 
 ---
@@ -102,25 +154,28 @@ cd ..
 
 ### Backend (`backend/.env`)
 
-Required:
-- `DATABASE_URL`
-- `ACCESS_TOKEN_SECRET`
-- `REFRESH_TOKEN_SECRET`
-
-Optional:
-- `PORT` (default `5001`)
-- `CORS_ORIGIN` (default `http://localhost:5173`; comma-separated allowed)
-- `COOKIE_DOMAIN`
-- `AUTH_RATE_LIMIT_WINDOW_MS` (default `60000`)
-- `AUTH_RATE_LIMIT_MAX` (default `10`)
-- `API_RATE_LIMIT_WINDOW_MS` (default `60000`)
-- `API_RATE_LIMIT_MAX` (default `120`)
-- `COMMENT_TTL_DAYS` (present in config, currently not used by comment model logic)
-- `TRUST_PROXY` (`true` / `false`)
-- `CLOUDINARY_NAME`, `CLOUDINARY_KEY`, `CLOUDINARY_SECRET`
+| Variable | Required | Default / Example | Notes |
+| :--- | :--- | :--- | :--- |
+| `DATABASE_URL` | Yes | `mongodb://127.0.0.1:27017/my_blog` | MongoDB connection string |
+| `ACCESS_TOKEN_SECRET` | Yes | `change_me_access` | JWT access token secret |
+| `REFRESH_TOKEN_SECRET` | Yes | `change_me_refresh` | JWT refresh token secret |
+| `PORT` | No | `5001` | Backend server port |
+| `CORS_ORIGIN` | No | `http://localhost:5173` | Allowed frontend origin |
+| `COOKIE_DOMAIN` | No | _(empty)_ | Cookie domain override |
+| `AUTH_RATE_LIMIT_WINDOW_MS` | No | `60000` | Auth endpoint rate-limit window |
+| `AUTH_RATE_LIMIT_MAX` | No | `10` | Max auth requests per window |
+| `API_RATE_LIMIT_WINDOW_MS` | No | `60000` | API rate-limit window |
+| `API_RATE_LIMIT_MAX` | No | `120` | Max API requests per window |
+| `COMMENT_TTL_DAYS` | No | `30` | Auto-delete comments after N days |
+| `TRUST_PROXY` | No | `false` | Enable when behind reverse proxy |
+| `CLOUDINARY_NAME` | No | _(empty)_ | Needed only for Cloudinary uploads |
+| `CLOUDINARY_KEY` | No | _(empty)_ | Needed only for Cloudinary uploads |
+| `CLOUDINARY_SECRET` | No | _(empty)_ | Needed only for Cloudinary uploads |
 
 ### Frontend (root `.env`, optional)
-- `VITE_API_BASE_URL` (default `http://localhost:5001/api`)
+| Variable | Required | Default / Example | Notes |
+| --- | --- | --- | --- |
+| `VITE_API_BASE_URL` | No | `http://localhost:5001/api` | Set only if backend URL differs |
 
 ## 4.4 Development run
 
@@ -247,6 +302,21 @@ Middleware order:
 ### `Like`
 - `post`, `user`
 - unique index on (`post`, `user`)
+### Index Strategy
+
+To ensure query performance and enforce data integrity, the following indexes are used:
+
+- `User.email`: **unique index**
+  - Prevents duplicate accounts and speeds up login/email lookup.
+
+- `User.username`: **unique index**
+  - Ensures unique public identity and supports fast profile lookup.
+
+- `Comment.expiresAt`: **TTL index**
+  - Automatically removes expired comments without manual cleanup jobs.
+
+- `Like(post, user)`: **compound unique index**
+  - Prevents duplicate likes from the same user on the same post and improves like existence checks.
 
 ---
 
@@ -267,6 +337,60 @@ Token details:
 - Access token: `15m`
 - Refresh token: `7d`, rotating on refresh
 
+### 7.1 Token Rotation, Reuse, and Cookie Security
+
+#### Token rotation and invalidation logic
+- On login, the server issues:
+  - Access token (`15m`)
+  - Refresh token (`7d`)
+- Only the hash of the refresh token is stored in DB (`refreshTokenHash`) with `refreshTokenExpiresAt`.
+- On `/auth/refresh`, the server:
+  - Verifies refresh JWT signature and `type=refresh`
+  - Loads the user/session record
+  - Compares incoming token hash vs stored `refreshTokenHash`
+- If valid, it rotates tokens:
+  - New access token is returned
+  - New refresh token is set in cookie
+  - Stored hash is replaced (old refresh token becomes invalid)
+
+#### What happens if refresh token reuse is detected
+- If a previously rotated (old) refresh token is sent again, hash comparison fails.
+- Response is `403 Invalid refresh token`.
+- Current behavior: request is denied, but there is no separate reuse-incident workflow (for example, forced global logout + security alert).
+
+#### Why refresh token is stored hashed in DB
+- If DB is leaked, attackers do not get usable bearer refresh tokens.
+- Server can still validate tokens by hashing incoming token and comparing hashes.
+- This follows the same principle as password storage: avoid storing sensitive credentials in plaintext.
+
+#### Refresh cookie flags
+- `httpOnly: true`: prevents JavaScript access to the refresh token.
+- `sameSite: 'none'` in production, `'lax'` in development.
+- `secure: true` in production (`false` in development), so cookies are sent over HTTPS only.
+- `maxAge: 7d`, `path: /api`, `domain: COOKIE_DOMAIN` (optional).
+
+### 7.2 Security Properties
+
+- **XSS mitigation (in-memory access token)**
+  - Access tokens are stored in memory (not `localStorage`/`sessionStorage`), so they are less exposed to token theft and do not persist after reload.
+  - This limits blast radius if XSS occurs.
+
+- **CSRF mitigation strategy**
+  - Protected APIs use `Authorization: Bearer <accessToken>` instead of cookie-based auth, which reduces CSRF exposure.
+  - Refresh flow still uses cookies, so mitigation relies on:
+    - strict CORS origin allowlist
+    - `credentials: true`
+    - secure cookie flags (`httpOnly`, `sameSite`, `secure`)
+  - Note: no separate CSRF token is implemented yet.
+
+- **Why `withCredentials` is required**
+  - Refresh token is stored in an `httpOnly` cookie (frontend JS cannot read it).
+  - `withCredentials: true` is required so browser includes cookie on requests like `/auth/refresh` and accepts `Set-Cookie` from backend.
+
+- **Why refresh tokens are rotated**
+  - Every refresh returns a new refresh token and updates the stored hash in DB.
+  - The previous refresh token becomes invalid.
+  - This reduces replay risk and improves session security if a token is leaked.
 ---
 
 ## 8. API Reference
@@ -312,6 +436,13 @@ Standard error envelope:
   - Query: `page`, `limit`, `sortBy`, `sortOrder`, `cursor`, `author`, `tag`, `search`
 - `GET /posts/slug/:slug`
 - `GET /posts/:id`
+
+### 8.3.1 Pagination strategy
+- it is `_id` based for cursor pagination. `cursor` is a MongoDB ObjectId and the backend applies `_id < cursor`.
+-  The API returns `nextCursor` and `hasNextPage` for forward navigation only.
+- Fully stable when sorting by `_id` descending.
+- For post list sorting by `title`, `updatedAt`, or `createdAt` ties, `_id` cursoring can produce duplicates/skips across pages.
+- Additional note: `GET /posts` supports both offset pagination (`page`, `limit`) and cursor pagination (`cursor`, `nextCursor`).
 
 ## 8.4 Admin Posts
 - `POST /admin/posts` (admin)
@@ -451,3 +582,26 @@ When adding new features:
    - route guards
    - dark/light theme readability
 
+---
+
+## 16. Future Enhancements
+
+### Drafts + scheduled publishing
+   - Allow authors to save draft posts and publish immediately or at a scheduled datetime.
+   - Add post status states (`draft`, `scheduled`, `published`) and a background publish job.
+
+### Rich text editor with Markdown support
+   - Upgrade the post editor to support Markdown shortcuts, headings, code blocks, and image embeds.
+   - Store canonical Markdown and render sanitized HTML on read.
+
+### Post bookmarks (save for later)
+   - Let authenticated users bookmark/unbookmark posts.
+   - Add a "Saved Posts" view under the user profile/dashboard.
+
+### Email verification + password reset flow
+   - Require email verification for new accounts before enabling full privileges.
+   - Add secure password reset via expiring, single-use tokens.
+
+### Post analytics dashboard
+   - Show per-post metrics such as views, likes, comments, and engagement trends.
+   - Provide author-level and admin-level summary cards for top-performing content.
