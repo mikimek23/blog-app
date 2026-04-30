@@ -39,6 +39,8 @@ beforeEach(async () => {
     content: 'Some content',
     author: admin._id,
     slug: 'test-post',
+    status: 'published',
+    publishedAt: new Date(),
   })
 })
 
@@ -74,5 +76,29 @@ describe('likes and comments services', () => {
       status: 'approved',
     })
     expect(updated.moderationStatus).toBe('approved')
+  })
+
+  test('likes and comments reject unpublished posts', async () => {
+    const draftPost = await Post.create({
+      title: 'Draft post',
+      content: 'Hidden content',
+      author: admin._id,
+      slug: 'draft-post',
+      status: 'draft',
+      publishedAt: null,
+    })
+
+    await expect(
+      toggleLike({ postId: draftPost._id, userId: user._id }),
+    ).rejects.toMatchObject({ status: 404 })
+
+    await expect(
+      createComment({
+        postId: draftPost._id,
+        authorId: user._id,
+        content: 'Cannot comment yet',
+        authorRole: 'user',
+      }),
+    ).rejects.toMatchObject({ status: 404 })
   })
 })

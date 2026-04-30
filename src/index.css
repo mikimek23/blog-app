@@ -9,8 +9,16 @@
       sans-serif;
 
     --color-bg:
-      radial-gradient(circle at 20% -10%, rgb(99 102 241 / 0.13), transparent 37%),
-      radial-gradient(circle at 78% -14%, rgb(56 189 248 / 0.11), transparent 34%),
+      radial-gradient(
+        circle at 20% -10%,
+        rgb(99 102 241 / 0.13),
+        transparent 37%
+      ),
+      radial-gradient(
+        circle at 78% -14%,
+        rgb(56 189 248 / 0.11),
+        transparent 34%
+      ),
       linear-gradient(165deg, #f7f9ff, #eef5ff);
     --color-bg-noise: rgb(15 23 42 / 0.06);
     --color-surface: #ffffff;
@@ -34,8 +42,16 @@
 
   [data-theme='dark'] {
     --color-bg:
-      radial-gradient(circle at 16% -6%, rgb(79 70 229 / 0.25), transparent 36%),
-      radial-gradient(circle at 78% -10%, rgb(56 189 248 / 0.14), transparent 32%),
+      radial-gradient(
+        circle at 16% -6%,
+        rgb(79 70 229 / 0.25),
+        transparent 36%
+      ),
+      radial-gradient(
+        circle at 78% -10%,
+        rgb(56 189 248 / 0.14),
+        transparent 32%
+      ),
       linear-gradient(165deg, #0b1220, #10192b);
     --color-bg-noise: rgb(148 163 184 / 0.07);
     --color-surface: rgb(15 23 42 / 0.86);
@@ -80,7 +96,10 @@
     position: fixed;
     inset: 0;
     pointer-events: none;
-    background-image: radial-gradient(var(--color-bg-noise) 0.45px, transparent 0.45px);
+    background-image: radial-gradient(
+      var(--color-bg-noise) 0.45px,
+      transparent 0.45px
+    );
     background-size: 3px 3px;
     opacity: 0.35;
     z-index: -1;
@@ -199,7 +218,8 @@
 
   .ui-input:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 22%, transparent);
+    box-shadow: 0 0 0 3px
+      color-mix(in srgb, var(--color-accent) 22%, transparent);
     outline: none;
   }
 
@@ -253,6 +273,198 @@
 
   .prose :where(a) {
     color: var(--color-accent);
+  }
+
+  .markdown-editor {
+    overflow: hidden;
+    border-radius: 0.75rem;
+  }
+
+  .markdown-editor :where(.mdxeditor-toolbar) {
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface-soft);
+  }
+
+  .markdown-editor-content {
+    min-height: 24rem;
+    padding: 1rem;
+    color: var(--color-text-primary);
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  }
+
+  /* Ensure list markers are visible inside the editor content.
+     Some base/reset styles (or the editor styles) may remove markers, so
+     explicitly restore sensible defaults here. */
+  .markdown-editor-content ul {
+    list-style: disc outside;
+    padding-left: 1.25rem;
+    margin-block-start: 0.6rem;
+    margin-block-end: 0.6rem;
+  }
+
+  .markdown-editor-content ol {
+    list-style: decimal outside;
+    padding-left: 1.25rem;
+    margin-block-start: 0.6rem;
+    margin-block-end: 0.6rem;
+  }
+
+  .markdown-editor-content li {
+    margin: 0.25rem 0;
+  }
+  .markdown-editor-content :where(p, li, blockquote, h1, h2, h3, h4, h5, h6) {
+    color: var(--color-text-primary);
+  }
+
+  .markdown-editor-content :where(p, li, blockquote) {
+    line-height: 1.75;
+  }
+
+  .markdown-editor.dark-theme :where(.cm-editor, .cm-scroller) {
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+  }
+
+  .markdown-editor.dark-theme :where(.cm-gutters) {
+    background: var(--color-surface-soft);
+    color: var(--color-text-muted);
+    border-color: var(--color-border);
+  }
+
+  .markdown-article {
+    color: var(--color-text-secondary);
+  }
+  .markdown-article input[type='checkbox'] {
+    appearance: auto;
+    width: 1em;
+    height: 1em;
+    margin-right: 0.4em;
+    accent-color: var(--color-accent);
+    cursor: default;
+  }
+
+  /* heading  */
+  .markdown-article h1 {
+    font-size: 2.25rem;
+    margin-top: 1.8em;
+    margin-bottom: 0.6em;
+    color: var(--color-text-primary);
+    font-family: var(--font-editorial);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .markdown-article h2 {
+    font-size: 1.75rem;
+    margin-top: 1.8em;
+    margin-bottom: 0.6em;
+    color: var(--color-text-primary);
+    font-family: var(--font-editorial);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .markdown-article h3 {
+    font-size: 1.375rem;
+    margin-top: 1.8em;
+    margin-bottom: 0.6em;
+    color: var(--color-text-primary);
+    font-family: var(--font-editorial);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .markdown-article h4 {
+    font-size: 1.125rem;
+    margin-top: 1.8em;
+    margin-bottom: 0.6em;
+    color: var(--color-text-primary);
+    font-family: var(--font-editorial);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  /* Remove the disc bullet on checklist items */
+  .markdown-article ul:has(input[type='checkbox']) {
+    list-style: none;
+    padding-left: 0.25rem;
+  }
+
+  .markdown-article :where(p, ul, ol, blockquote, pre, table) {
+    margin-block: 1.1rem;
+  }
+
+  .markdown-article :where(p, li) {
+    line-height: 1.85;
+  }
+
+  .markdown-article :where(a) {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .markdown-article :where(img) {
+    max-width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-border);
+  }
+
+  .markdown-article :where(blockquote) {
+    border-left: 4px solid var(--color-accent);
+    padding-left: 1rem;
+    color: var(--color-text-muted);
+  }
+
+  .markdown-article :where(code) {
+    border-radius: 0.35rem;
+    background: var(--color-surface-soft);
+    padding: 0.1rem 0.35rem;
+    font-size: 0.92em;
+  }
+
+  .markdown-article :where(pre) {
+    overflow-x: auto;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-soft);
+    padding: 1rem;
+  }
+
+  .markdown-article :where(pre code) {
+    background: transparent;
+    padding: 0;
+  }
+
+  /* Ensure lists render correctly in published article view. Some
+     third-party styles or resets can remove markers or collapse spacing,
+     so explicitly set sensible defaults for prose/articles. */
+  .markdown-article ul {
+    list-style: disc outside;
+    padding-left: 1.5rem;
+    margin-block-start: 0.6rem;
+    margin-block-end: 0.6rem;
+  }
+
+  .markdown-article ol {
+    list-style: decimal outside;
+    padding-left: 1.5rem;
+    margin-block-start: 0.6rem;
+    margin-block-end: 0.6rem;
+  }
+
+  .markdown-article li {
+    margin: 0.25rem 0;
+  }
+  
+  /* Nested lists get distinct markers and slightly increased indent */
+  .markdown-article ul ul {
+    list-style: circle;
+    padding-left: 1rem;
+  }
+
+  .markdown-article ol ol {
+    list-style: lower-alpha;
+    padding-left: 1rem;
   }
 
   .home-surface {

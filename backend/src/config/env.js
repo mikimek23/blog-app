@@ -10,7 +10,10 @@ const toBoolean = (value, fallback = false) => {
 
 export const getEnv = () => {
   const nodeEnv = process.env.NODE_ENV || 'development'
-  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
+  const corsOrigin =
+    process.env.CORS_ORIGINS ||
+    process.env.CORS_ORIGIN ||
+    'http://localhost:5173'
 
   return {
     nodeEnv,

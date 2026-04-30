@@ -7,7 +7,7 @@ export const listApprovedCommentsByPost = async (
   postId,
   { limit = 30 } = {},
 ) => {
-  const exists = await Post.exists({ _id: postId })
+  const exists = await Post.exists({ _id: postId, status: 'published' })
   if (!exists) throw createHttpError(404, 'Post not found')
 
   return Comment.find({
@@ -25,7 +25,7 @@ export const createComment = async ({
   content,
   authorRole,
 }) => {
-  const exists = await Post.exists({ _id: postId })
+  const exists = await Post.exists({ _id: postId, status: 'published' })
   if (!exists) throw createHttpError(404, 'Post not found')
 
   const moderationStatus = authorRole === 'admin' ? 'approved' : 'pending'

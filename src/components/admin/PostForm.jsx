@@ -1,19 +1,48 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { PenSquare } from 'lucide-react'
+import { Clock, PenSquare, Save, Send } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   createAdminPost,
-  getPostById,
-  listPosts,
+  getAdminPostById,
+  listAdminPosts,
   updateAdminPost,
 } from '../../api/posts.js'
 import { Button } from '../Button.jsx'
+import { MarkdownEditor } from './MarkdownEditor.jsx'
 
 const INITIAL_FORM = {
   title: '',
   content: '',
   tags: '',
+  status: 'published',
+  scheduledFor: '',
+}
+
+const STATUS_OPTIONS = [
+  { value: 'draft', label: 'Draft', icon: Save },
+  { value: 'published', label: 'Publish now', icon: Send },
+  { value: 'scheduled', label: 'Schedule', icon: Clock },
+]
+
+const toDateTimeLocal = (dateValue) => {
+  if (!dateValue) return ''
+  const date = new Date(dateValue)
+  if (Number.isNaN(date.getTime())) return ''
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+  return localDate.toISOString().slice(0, 16)
+}
+
+const getDefaultScheduledFor = () => {
+  const date = new Date()
+  date.setHours(date.getHours() + 1)
+  return toDateTimeLocal(date)
+}
+
+const submitLabelByStatus = {
+  draft: 'Save Draft',
+  published: 'Publish Post',
+  scheduled: 'Schedule Post',
 }
 
 export const PostForm = () => {
@@ -21,19 +50,20 @@ export const PostForm = () => {
   const [image, setImage] = useState(null)
   const [preview, setPreview] = useState('')
   const [message, setMessage] = useState([null, null])
+  const [loadedPostId, setLoadedPostId] = useState(null)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { id } = useParams()
   const isEditMode = Boolean(id)
 
   const { data: listData } = useQuery({
-    queryKey: ['admin-posts', 1],
-    queryFn: () => listPosts({ page: 1, limit: 5 }),
+    queryKey: ['admin-posts', 'recent'],
+    queryFn: () => listAdminPosts({ page: 1, limit: 5, status: 'all' }),
   })
 
   const editQuery = useQuery({
-    queryKey: ['post', id],
-    queryFn: () => getPostById(id),
+    queryKey: ['admin-post', id],
+    queryFn: () => getAdminPostById(id),
     enabled: isEditMode,
   })
 
@@ -45,9 +75,12 @@ export const PostForm = () => {
       title: post.title || '',
       content: post.content || '',
       tags: Array.isArray(post.tags) ? post.tags.join(', ') : '',
+      status: post.status || 'published',
+      scheduledFor: toDateTimeLocal(post.scheduledFor),
     })
     setPreview(post.imageUrl || '')
-  }, [editQuery.data])
+    setLoadedPostId(id)
+  }, [editQuery.data, id])
 
   const posts = Array.isArray(listData?.data) ? listData.data : []
   const slugPreview = useMemo(
@@ -67,9 +100,16 @@ export const PostForm = () => {
       .filter(Boolean)
 
     const formData = new FormData()
-    if (form.title) formData.append('title', form.title)
-    if (form.content) formData.append('content', form.content)
+    formData.append('title', form.title)
+    formData.append('content', form.content)
     formData.append('tags', JSON.stringify(parsedTags))
+    formData.append('status', form.status)
+    formData.append(
+      'scheduledFor',
+      form.status === 'scheduled' && form.scheduledFor
+        ? new Date(form.scheduledFor).toISOString()
+        : '',
+    )
     if (image) formData.append('image', image)
     return formData
   }
@@ -84,7 +124,7 @@ export const PostForm = () => {
       setMessage([
         isEditMode
           ? 'Post updated successfully.'
-          : 'Post created successfully.',
+          : `${submitLabelByStatus[form.status]} saved successfully.`,
         true,
       ])
       if (!isEditMode) {
@@ -93,7 +133,10 @@ export const PostForm = () => {
         setPreview('')
       }
       queryClient.invalidateQueries({ queryKey: ['admin-posts'] })
+      queryClient.invalidateQueries({ queryKey: ['admin-post', id] })
       queryClient.invalidateQueries({ queryKey: ['post', id] })
+      queryClient.invalidateQueries({ queryKey: ['posts'] })
+      queryClient.invalidateQueries({ queryKey: ['home-posts'] })
     },
     onError: (error) => {
       setMessage([
@@ -106,6 +149,17 @@ export const PostForm = () => {
   const handleChange = (event) => {
     const { name, value } = event.target
     setForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleStatusChange = (status) => {
+    setForm((prev) => ({
+      ...prev,
+      status,
+      scheduledFor:
+        status === 'scheduled'
+          ? prev.scheduledFor || getDefaultScheduledFor()
+          : '',
+    }))
   }
 
   const handleFileChange = (event) => {
@@ -121,6 +175,16 @@ export const PostForm = () => {
     mutation.mutate()
   }
 
+  const isFormReady = !isEditMode || loadedPostId === id
+
+  if (isEditMode && !isFormReady) {
+    return (
+      <section className='rounded-3xl p-6 sm:p-8 ui-surface'>
+        <p className='ui-text-muted'>Loading post editor...</p>
+      </section>
+    )
+  }
+
   return (
     <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
       <section className='lg:col-span-2 rounded-3xl p-6 sm:p-8 ui-surface'>
@@ -134,8 +198,8 @@ export const PostForm = () => {
             </h2>
             <p className='text-sm ui-text-muted'>
               {isEditMode
-                ? 'Update your published post.'
-                : 'Publish a new post for your audience.'}
+                ? 'Update your post workflow.'
+                : 'Write, draft, publish, or schedule a post.'}
             </p>
           </div>
         </div>
@@ -214,21 +278,62 @@ export const PostForm = () => {
           </div>
 
           <div>
+            <span className='block text-sm font-semibold ui-text mb-1.5'>
+              Publishing
+            </span>
+            <div className='grid grid-cols-1 sm:grid-cols-3 gap-2'>
+              {STATUS_OPTIONS.map((option) => {
+                const Icon = option.icon
+                const isSelected = form.status === option.value
+                return (
+                  <button
+                    key={option.value}
+                    type='button'
+                    onClick={() => handleStatusChange(option.value)}
+                    className={`ui-ring-focus flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors ${
+                      isSelected
+                        ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-accent-contrast)]'
+                        : 'ui-chip'
+                    }`}
+                  >
+                    <Icon size={16} />
+                    {option.label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {form.status === 'scheduled' && (
+            <div>
+              <label
+                htmlFor='scheduledFor'
+                className='block text-sm font-semibold ui-text mb-1.5'
+              >
+                Publish Date And Time
+              </label>
+              <input
+                type='datetime-local'
+                id='scheduledFor'
+                name='scheduledFor'
+                value={form.scheduledFor}
+                onChange={handleChange}
+                required
+                className='ui-input px-3 py-2.5'
+              />
+            </div>
+          )}
+
+          <div>
             <label
               htmlFor='content'
               className='block text-sm font-semibold ui-text mb-1.5'
             >
-              Content
+              Markdown Content
             </label>
-            <textarea
-              id='content'
-              name='content'
+            <MarkdownEditor
               value={form.content}
-              onChange={handleChange}
-              required={!isEditMode}
-              rows={8}
-              className='ui-input px-3 py-2.5 resize-y'
-              placeholder='Write your post content'
+              onChange={(content) => setForm((prev) => ({ ...prev, content }))}
             />
           </div>
 
@@ -238,7 +343,7 @@ export const PostForm = () => {
               variant='primary'
               isLoading={mutation.isPending}
             >
-              {isEditMode ? 'Update Post' : 'Publish Post'}
+              {isEditMode ? 'Update Post' : submitLabelByStatus[form.status]}
             </Button>
             <Button
               type='button'
@@ -263,7 +368,7 @@ export const PostForm = () => {
                   {post.title}
                 </p>
                 <p className='text-xs ui-text-muted mt-1 line-clamp-1'>
-                  {post.slug}
+                  {post.status || 'published'} - {post.slug}
                 </p>
               </div>
             ))

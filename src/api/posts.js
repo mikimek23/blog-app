@@ -11,8 +11,18 @@ export const listPosts = async (params = {}) => {
   return unwrap(response)
 }
 
+export const listAdminPosts = async (params = {}) => {
+  const response = await api.get('/admin/posts', { params })
+  return unwrap(response)
+}
+
 export const getPostById = async (postId) => {
   const response = await api.get(`/posts/${postId}`)
+  return unwrap(response).data
+}
+
+export const getAdminPostById = async (postId) => {
+  const response = await api.get(`/admin/posts/${postId}`)
   return unwrap(response).data
 }
 
@@ -28,6 +38,13 @@ export const createAdminPost = async (formData) => {
 
 export const updateAdminPost = async (postId, formData) => {
   const response = await api.patch(`/admin/posts/${postId}`, formData)
+  return unwrap(response).data
+}
+
+export const uploadAdminPostImage = async (file) => {
+  const formData = new FormData()
+  formData.append('image', file)
+  const response = await api.post('/admin/posts/images', formData)
   return unwrap(response).data
 }
 

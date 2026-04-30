@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import 'highlight.js/styles/atom-one-dark.css'
 import './index.css'
 import { router } from '../router.jsx'
 import { RouterProvider } from 'react-router-dom'

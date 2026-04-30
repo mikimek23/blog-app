@@ -3,7 +3,7 @@ import { Post } from '../models/posts.js'
 import { createHttpError } from '../utils/response.js'
 
 const ensurePostExists = async (postId) => {
-  const exists = await Post.exists({ _id: postId })
+  const exists = await Post.exists({ _id: postId, status: 'published' })
   if (!exists) throw createHttpError(404, 'Post not found')
 }
 

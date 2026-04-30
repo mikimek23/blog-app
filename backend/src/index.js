@@ -9,11 +9,14 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') })
 
 const { validateEnv, getEnv } = await import('./config/env.js')
 const { initDatabase } = await import('./utils/dbinit.js')
+const { startScheduledPublisher } =
+  await import('./jobs/publishScheduledPosts.js')
 const { default: app } = await import('./app.js')
 
 try {
   validateEnv()
   await initDatabase()
+  startScheduledPublisher()
   const env = getEnv()
   app.listen(env.port, () => {
     console.log(`Server is running on http://localhost:${env.port}`)

@@ -39,19 +39,46 @@ const tagsSchema = Joi.alternatives().try(
   Joi.string(),
 )
 
+const postStatusSchema = Joi.string().valid('draft', 'scheduled', 'published')
+const scheduledForSchema = Joi.alternatives()
+  .try(Joi.date().iso(), Joi.date(), Joi.valid(null, ''))
+  .optional()
+
+const requireScheduledDate = (value, helpers) => {
+  if (value.status !== 'scheduled') return value
+
+  if (!value.scheduledFor) {
+    return helpers.message('scheduledFor is required for scheduled posts')
+  }
+
+  const scheduledDate = new Date(value.scheduledFor)
+  if (Number.isNaN(scheduledDate.getTime()) || scheduledDate <= new Date()) {
+    return helpers.message('scheduledFor must be a future datetime')
+  }
+
+  return value
+}
+
 export const postCreateValidation = Joi.object({
   title: Joi.string().max(200).required().messages({
     'string.max': 'title length must be less than 200 characters!',
     'any.required': 'title is required',
   }),
-  content: Joi.string()
-    .required()
-    .messages({ 'any.required': 'content is required' }),
+  content: Joi.when('status', {
+    is: 'draft',
+    then: Joi.string().allow('').optional(),
+    otherwise: Joi.string().min(1).required().messages({
+      'string.min': 'content is required',
+      'any.required': 'content is required',
+    }),
+  }),
   tags: tagsSchema.optional(),
   imageUrl: Joi.string().uri().allow(null, '').optional().messages({
     'string.uri': 'Invalid URL format',
   }),
-})
+  status: postStatusSchema.default('published'),
+  scheduledFor: scheduledForSchema,
+}).custom(requireScheduledDate)
 
 export const postUpdateValidation = Joi.object({
   title: Joi.string().max(200).optional().messages({
@@ -62,19 +89,32 @@ export const postUpdateValidation = Joi.object({
   imageUrl: Joi.string().uri().allow(null, '').optional().messages({
     'string.uri': 'Invalid URL format',
   }),
-}).min(1)
+  status: postStatusSchema.optional(),
+  scheduledFor: scheduledForSchema,
+})
+  .min(1)
+  .custom(requireScheduledDate)
 
 export const postListQueryValidation = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).default(10),
   sortBy: Joi.string()
-    .valid('createdAt', 'updatedAt', 'title')
-    .default('createdAt'),
+    .valid('createdAt', 'updatedAt', 'publishedAt', 'scheduledFor', 'title')
+    .default('publishedAt'),
   sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
   cursor: Joi.string().optional(),
   author: Joi.string().trim().optional(),
   tag: Joi.string().trim().optional(),
   search: Joi.string().trim().allow('').optional(),
+  status: Joi.string()
+    .valid('all', 'draft', 'scheduled', 'published')
+    .default('published'),
+})
+
+export const adminPostListQueryValidation = postListQueryValidation.keys({
+  status: Joi.string()
+    .valid('all', 'draft', 'scheduled', 'published')
+    .default('all'),
 })
 
 export const commentCreateValidation = Joi.object({

@@ -5,9 +5,11 @@ import { User } from '../models/users.js'
 import {
   createPost,
   deletePost,
+  listAdminPosts,
   listPosts,
   updatePost,
 } from '../services/posts.js'
+import { publishDueScheduledPosts } from '../jobs/publishScheduledPosts.js'
 
 let author
 let admin
@@ -71,6 +73,87 @@ describe('post services', () => {
 
     const bySearch = await listPosts({ search: 'guide' })
     expect(bySearch.items).toHaveLength(1)
+  })
+
+  test('hides drafts and scheduled posts from public lists', async () => {
+    await createPost(author._id, {
+      title: 'Public post',
+      content: 'Ready to read',
+      tags: [],
+      slug: 'public-post',
+      status: 'published',
+    })
+    await createPost(author._id, {
+      title: 'Draft post',
+      content: '',
+      tags: [],
+      slug: 'draft-post',
+      status: 'draft',
+    })
+    await createPost(author._id, {
+      title: 'Scheduled post',
+      content: 'Coming soon',
+      tags: [],
+      slug: 'scheduled-post',
+      status: 'scheduled',
+      scheduledFor: new Date(Date.now() + 60 * 60 * 1000),
+    })
+
+    const publicResult = await listPosts({ limit: 10 })
+    expect(publicResult.items.map((post) => post.slug)).toEqual(['public-post'])
+
+    const adminResult = await listAdminPosts({ limit: 10, status: 'all' })
+    expect(adminResult.items).toHaveLength(3)
+  })
+
+  test('publishes due scheduled posts', async () => {
+    const post = await Post.create({
+      title: 'Due soon',
+      content: 'Ready now',
+      tags: [],
+      slug: 'due-soon',
+      author: author._id,
+      status: 'scheduled',
+      scheduledFor: new Date(Date.now() - 60 * 1000),
+      publishedAt: null,
+    })
+
+    const modifiedCount = await publishDueScheduledPosts(new Date())
+    const updated = await Post.findById(post._id)
+
+    expect(modifiedCount).toBe(1)
+    expect(updated.status).toBe('published')
+    expect(updated.scheduledFor).toBeNull()
+    expect(updated.publishedAt).toBeInstanceOf(Date)
+  })
+
+  test('sorts public posts by publishedAt by default', async () => {
+    const older = await createPost(author._id, {
+      title: 'Older',
+      content: 'Older content',
+      tags: [],
+      slug: 'older',
+      status: 'published',
+    })
+    const newer = await createPost(author._id, {
+      title: 'Newer',
+      content: 'Newer content',
+      tags: [],
+      slug: 'newer',
+      status: 'published',
+    })
+
+    await Post.updateOne(
+      { _id: older._id },
+      { $set: { publishedAt: new Date('2024-01-01T00:00:00.000Z') } },
+    )
+    await Post.updateOne(
+      { _id: newer._id },
+      { $set: { publishedAt: new Date('2024-02-01T00:00:00.000Z') } },
+    )
+
+    const result = await listPosts({ limit: 2 })
+    expect(result.items.map((post) => post.slug)).toEqual(['newer', 'older'])
   })
 
   test('allows admin to update and delete another users post', async () => {

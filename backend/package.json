@@ -22,8 +22,11 @@
     "express-jwt": "^8.5.1",
     "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.3",
+    "markdown-it": "^14.1.1",
     "mongoose": "^9.2.1",
     "multer": "^2.0.2",
+    "node-cron": "^4.2.1",
+    "sanitize-html": "^2.17.3",
     "slugify": "^1.6.6"
   },
   "devDependencies": {

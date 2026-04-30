@@ -1,13 +1,16 @@
 import {
   createPost,
   deletePost,
+  getAdminPostById,
   getPostById,
   getPostBySlug,
+  listAdminPosts,
   listPosts,
   updatePost,
 } from '../services/posts.js'
 import {
   IdValidation,
+  adminPostListQueryValidation,
   postCreateValidation,
   postListQueryValidation,
   postUpdateValidation,
@@ -63,17 +66,19 @@ export const createPostController = async (req, res, next) => {
       content: req.body.content,
       tags: parseTags(req.body.tags),
       imageUrl: req.body.imageUrl,
+      status: req.body.status,
+      scheduledFor: req.body.scheduledFor,
     }
 
-    const { error } = postCreateValidation.validate(payload)
+    const { error, value } = postCreateValidation.validate(payload)
     if (error) throw createHttpError(400, error.details[0].message)
 
     const image = await uploadPostImage(req.file)
-    const slug = await generateSlug(payload.title)
+    const slug = await generateSlug(value.title)
     const newPost = await createPost(req.auth.sub, {
-      ...payload,
+      ...value,
       slug,
-      imageUrl: image?.imageUrl || payload.imageUrl || null,
+      imageUrl: image?.imageUrl || value.imageUrl || null,
       imagePublicId: image?.imagePublicId || null,
     })
 
@@ -103,6 +108,22 @@ export const listPostController = async (req, res, next) => {
   }
 }
 
+export const listAdminPostController = async (req, res, next) => {
+  try {
+    const { error, value } = adminPostListQueryValidation.validate(req.query)
+    if (error) throw createHttpError(400, error.details[0].message)
+
+    const result = await listAdminPosts(value, req.auth?.sub || null)
+    return successResponse(res, {
+      message: 'Admin posts fetched successfully',
+      data: result.items,
+      meta: result.meta,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const getPostByIdController = async (req, res, next) => {
   try {
     const { error } = IdValidation.validate(req.params)
@@ -113,6 +134,23 @@ export const getPostByIdController = async (req, res, next) => {
 
     return successResponse(res, {
       message: 'Post fetched successfully',
+      data: post,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const getAdminPostByIdController = async (req, res, next) => {
+  try {
+    const { error } = IdValidation.validate(req.params)
+    if (error) throw createHttpError(400, error.details[0].message)
+
+    const post = await getAdminPostById(req.params.id, req.auth?.sub || null)
+    if (!post) throw createHttpError(404, 'Post not found')
+
+    return successResponse(res, {
+      message: 'Admin post fetched successfully',
       data: post,
     })
   } catch (error) {
@@ -148,17 +186,24 @@ export const updatePostController = async (req, res, next) => {
       payload.tags = parseTags(req.body.tags)
     if (Object.prototype.hasOwnProperty.call(req.body, 'imageUrl'))
       payload.imageUrl = req.body.imageUrl
+    if (Object.prototype.hasOwnProperty.call(req.body, 'status'))
+      payload.status = req.body.status
+    if (Object.prototype.hasOwnProperty.call(req.body, 'scheduledFor'))
+      payload.scheduledFor = req.body.scheduledFor
 
-    const { error } = postUpdateValidation.validate(payload)
+    const { error, value } = postUpdateValidation.validate(payload)
     if (error) throw createHttpError(400, error.details[0].message)
 
-    const existing = await getPostById(req.params.id, req.auth?.sub || null)
+    const existing = await getAdminPostById(
+      req.params.id,
+      req.auth?.sub || null,
+    )
     if (!existing) throw createHttpError(404, 'Post not found')
 
-    const changes = { ...payload }
+    const changes = { ...value }
 
-    if (payload.title && payload.title !== existing.title) {
-      changes.slug = await generateSlug(payload.title)
+    if (value.title && value.title !== existing.title) {
+      changes.slug = await generateSlug(value.title)
     }
 
     if (req.file) {
@@ -172,6 +217,21 @@ export const updatePostController = async (req, res, next) => {
     return successResponse(res, {
       message: 'Post updated successfully',
       data: updatedPost,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const uploadPostImageController = async (req, res, next) => {
+  try {
+    if (!req.file) throw createHttpError(400, 'Image file is required')
+
+    const image = await uploadPostImage(req.file)
+    return successResponse(res, {
+      status: 201,
+      message: 'Image uploaded successfully',
+      data: image,
     })
   } catch (error) {
     next(error)

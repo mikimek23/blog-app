@@ -23,9 +23,24 @@ const overwriteObjectInPlace = (target, source) => {
   for (const key of Object.keys(target)) delete target[key]
   Object.assign(target, source)
 }
+
+const shouldPreserveRawPostContent = (req) => {
+  if (!['POST', 'PATCH'].includes(req.method)) return false
+  const path = req.originalUrl.split('?')[0]
+  return /^\/api\/admin\/posts?(?:\/[0-9a-fA-F]{24})?$/.test(path)
+}
+
 export const sanitizeInput = (req, _res, next) => {
   if (req.body && typeof req.body === 'object') {
+    const preserveContent =
+      shouldPreserveRawPostContent(req) &&
+      Object.prototype.hasOwnProperty.call(req.body, 'content')
+    const rawContent = preserveContent ? req.body.content : null
+
     req.body = sanitizeValue(req.body)
+    if (preserveContent) {
+      req.body.content = rawContent
+    }
   }
   if (req.query && typeof req.query === 'object') {
     const sanitizedQuery = sanitizeValue(req.query)

@@ -3,7 +3,16 @@ import { Button } from '../Button.jsx'
 import { Edit3, Plus, Search, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { deleteAdminPost, listPosts } from '../../api/posts.js'
+import { deleteAdminPost, listAdminPosts } from '../../api/posts.js'
+
+const STATUS_FILTERS = ['all', 'draft', 'scheduled', 'published']
+
+const STATUS_STYLES = {
+  draft: 'border-slate-200 bg-slate-50 text-slate-700',
+  scheduled:
+    'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200',
+  published: 'ui-alert-success',
+}
 
 const formatDate = (dateValue) => {
   if (!dateValue) return '-'
@@ -13,17 +22,19 @@ const formatDate = (dateValue) => {
 export const ManagePost = () => {
   const [searchInput, setSearchInput] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
   const [page, setPage] = useState(1)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['admin-posts', page, searchTerm],
+    queryKey: ['admin-posts', page, searchTerm, statusFilter],
     queryFn: () =>
-      listPosts({
+      listAdminPosts({
         page,
         limit: 10,
         search: searchTerm || undefined,
+        status: statusFilter,
         sortBy: 'createdAt',
         sortOrder: 'desc',
       }),
@@ -49,6 +60,11 @@ export const ManagePost = () => {
     return () => clearTimeout(timer)
   }, [searchInput])
 
+  const handleStatusFilter = (status) => {
+    setPage(1)
+    setStatusFilter(status)
+  }
+
   const handleEdit = (post) => {
     navigate(`/admin/posts/${post._id}/edit`)
   }
@@ -64,18 +80,36 @@ export const ManagePost = () => {
   return (
     <div className='space-y-6'>
       <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
-        <div className='relative w-full sm:w-96'>
-          <Search
-            className='absolute left-3 top-1/2 -translate-y-1/2 ui-text-muted'
-            size={18}
-          />
-          <input
-            type='text'
-            placeholder='Search posts...'
-            className='ui-input pl-10 pr-4 py-2.5'
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-          />
+        <div className='w-full space-y-3 sm:max-w-3xl'>
+          <div className='relative w-full sm:w-96'>
+            <Search
+              className='absolute left-3 top-1/2 -translate-y-1/2 ui-text-muted'
+              size={18}
+            />
+            <input
+              type='text'
+              placeholder='Search posts...'
+              className='ui-input pl-10 pr-4 py-2.5'
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+            />
+          </div>
+          <div className='flex flex-wrap gap-2'>
+            {STATUS_FILTERS.map((status) => (
+              <button
+                key={status}
+                type='button'
+                onClick={() => handleStatusFilter(status)}
+                className={`ui-ring-focus rounded-xl border px-3 py-1.5 text-xs font-bold capitalize transition-colors ${
+                  statusFilter === status
+                    ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-accent-contrast)]'
+                    : 'ui-chip'
+                }`}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
         </div>
         <Button
           iconLeft={Plus}
@@ -126,11 +160,19 @@ export const ManagePost = () => {
                       </p>
                     </td>
                     <td className='p-5 ui-text-muted hidden md:table-cell whitespace-nowrap'>
-                      {formatDate(post.createdAt)}
+                      {formatDate(
+                        post.status === 'scheduled'
+                          ? post.scheduledFor
+                          : post.publishedAt || post.createdAt,
+                      )}
                     </td>
                     <td className='p-5 hidden sm:table-cell'>
-                      <span className='px-3 py-1 rounded-full text-xs font-bold border ui-alert-success'>
-                        Published
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold border capitalize ${
+                          STATUS_STYLES[post.status] || STATUS_STYLES.published
+                        }`}
+                      >
+                        {post.status || 'published'}
                       </span>
                     </td>
                     <td className='p-5 text-right'>

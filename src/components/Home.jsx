@@ -119,14 +119,16 @@ const FeaturedSection = ({ post }) => {
         <div className='flex flex-col justify-between p-6 sm:p-8'>
           <div>
             <div className='flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.12em] ui-text-muted'>
-              <span>{formatDate(post.createdAt)}</span>
+              <span>{formatDate(post.publishedAt || post.createdAt)}</span>
               <span aria-hidden='true'>&bull;</span>
               <span>{authorName}</span>
             </div>
             <h3 className='font-editorial mt-4 text-3xl font-bold leading-tight ui-heading'>
               {post.title}
             </h3>
-            <p className='mt-4 ui-text-muted'>{extractExcerpt(post.content)}</p>
+            <p className='mt-4 ui-text-muted'>
+              {post.excerpt || extractExcerpt(post.content)}
+            </p>
           </div>
 
           <div className='mt-6'>

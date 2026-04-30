@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import { getEnv } from '../config/env.js'
 import { Comment } from '../models/comments.js'
+import { Post } from '../models/posts.js'
 
 const ensureCommentTtlIndex = async () => {
   const indexes = await Comment.collection.indexes()
@@ -23,6 +24,30 @@ const ensureCommentTtlIndex = async () => {
   }
 }
 
+const ensurePostPublishingFields = async () => {
+  await Post.updateMany(
+    { status: { $exists: false } },
+    { $set: { status: 'published' } },
+  )
+
+  await Post.collection.updateMany(
+    {
+      status: 'published',
+      $or: [{ publishedAt: { $exists: false } }, { publishedAt: null }],
+    },
+    [
+      {
+        $set: {
+          publishedAt: { $ifNull: ['$createdAt', '$$NOW'] },
+          scheduledFor: null,
+        },
+      },
+    ],
+  )
+
+  await Post.createIndexes()
+}
+
 export const initDatabase = () => {
   const env = getEnv()
   const databaseUrl = env.databaseUrl
@@ -32,5 +57,6 @@ export const initDatabase = () => {
   })
   return mongoose.connect(databaseUrl).then(async () => {
     await ensureCommentTtlIndex()
+    await ensurePostPublishingFields()
   })
 }

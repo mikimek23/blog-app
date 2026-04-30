@@ -25,7 +25,7 @@ export const Blogcard = ({ post }) => {
           className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500'
         />
         <div className='absolute top-4 left-4 flex flex-wrap gap-2 '>
-          {post?.tags.map((tag, index) => (
+          {(post?.tags || []).map((tag, index) => (
             <span
               key={`${tag}-${index}`}
               className='ui-chip backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold shadow-sm'
@@ -39,7 +39,7 @@ export const Blogcard = ({ post }) => {
       <div className='p-6 flex flex-col flex-1'>
         <div className='flex items-center gap-2 text-xs ui-text-muted mb-3'>
           <Calendar size={14} />
-          <span>{formatDate(post?.createdAt)}</span>
+          <span>{formatDate(post?.publishedAt || post?.createdAt)}</span>
           <span>•</span>
           <Clock size={14} />
           <span>Updated {formatDate(post?.updatedAt)}</span>
@@ -50,7 +50,7 @@ export const Blogcard = ({ post }) => {
         </h3>
 
         <p className='ui-text-muted text-sm line-clamp-3 mb-6 flex-1'>
-          {post?.content?.slice(0, 150) || 'No content'}...
+          {post?.excerpt || post?.content?.slice(0, 150) || 'No content'}...
         </p>
 
         <div className='flex items-center justify-between pt-4 border-t ui-border'>

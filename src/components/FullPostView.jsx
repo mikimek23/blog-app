@@ -1,7 +1,8 @@
 import { Button } from './Button.jsx'
 import { ArrowLeft, Bookmark, Heart, Share2 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-
+import { marked } from './markdown.js'
+marked.setOptions({ gfm: true })
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=1200'
 
@@ -31,19 +32,19 @@ export const FullPostView = ({ post, likeStats, onToggleLike, canLike }) => {
       </div>
     )
   }
-
+  const contentHtml = marked(post.content || '')
   return (
     <div className='max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500'>
       <button
         type='button'
         onClick={() => navigate('/posts')}
-        className='ui-ring-focus mb-8 flex items-center gap-2 ui-text-muted hover:text-[var(--color-accent)] transition-colors font-medium'
+        className='ui-ring-focus mb-8 flex items-center gap-2 ui-text-muted hover:text-(--color-accent) transition-colors font-medium'
       >
         <ArrowLeft size={20} /> Back to feed
       </button>
 
       <header className='mb-10'>
-        <div className='flex items-center gap-3 text-sm text-[var(--color-accent)] font-bold mb-4 uppercase tracking-widest'>
+        <div className='flex items-center gap-3 text-sm text-(--color-accent) font-bold mb-4 uppercase tracking-widest'>
           <span>Articles</span>
           <span className='ui-text-muted'>•</span>
           <span>{readTime(post.content)}</span>
@@ -54,18 +55,18 @@ export const FullPostView = ({ post, likeStats, onToggleLike, canLike }) => {
 
         <div className='flex flex-wrap items-center justify-between gap-6 pb-8 border-b ui-border'>
           <div className='flex items-center gap-4'>
-            <div className='w-12 h-12 rounded-2xl bg-[var(--color-accent)] flex items-center justify-center text-[var(--color-accent-contrast)] font-bold text-xl'>
+            <div className='w-12 h-12 rounded-2xl bg-(--color-accent) flex items-center justify-center text-(--color-accent-contrast)] font-bold text-xl'>
               {authorName[0]?.toUpperCase() || 'U'}
             </div>
             <div>
               <Link
                 to={`/users/${authorName}`}
-                className='font-bold ui-text hover:text-[var(--color-accent)]'
+                className='font-bold ui-text hover:text-(--color-accent)'
               >
                 {authorName}
               </Link>
               <div className='text-sm ui-text-muted'>
-                Published on {formatDate(post.createdAt)}
+                Published on {formatDate(post.publishedAt || post.createdAt)}
               </div>
             </div>
           </div>
@@ -98,10 +99,8 @@ export const FullPostView = ({ post, likeStats, onToggleLike, canLike }) => {
         />
       </div>
 
-      <article className='prose prose-lg max-w-none'>
-        <div className='ui-text leading-loose whitespace-pre-wrap'>
-          {post.content}
-        </div>
+      <article className='prose prose-lg max-w-none markdown-article'>
+        <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
       </article>
     </div>
   )

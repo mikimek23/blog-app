@@ -37,6 +37,8 @@ A full-stack blog platform built for developers to share ideas and tutorials. Fe
 - Profile pages
 - Likes and moderated comments
 - Role-based admin dashboard for post and user management
+- Draft, scheduled, and published post workflow
+- Markdown-first rich text editing with sanitized HTML rendering
 - App-wide `light` / `dark` / `system` theme support
 
 ## Stack
@@ -47,6 +49,7 @@ A full-stack blog platform built for developers to share ideas and tutorials. Fe
 - TanStack Query
 - Tailwind CSS 4
 - Axios
+- MDXEditor for rich Markdown editing
 
 ### Backend
 - Node.js + Express 5
@@ -54,6 +57,8 @@ A full-stack blog platform built for developers to share ideas and tutorials. Fe
 - JWT auth (`access` + rotating `refresh` token)
 - Joi validation
 - Multer + Cloudinary (image uploads)
+- node-cron scheduled publishing
+- markdown-it + sanitize-html for Markdown rendering
 
 ## Repository Layout
 
@@ -178,4 +183,3 @@ Backend health: `http://localhost:5001/api/health`
 For complete technical documentation (architecture, routes, API reference, auth flow, theming, testing, deployment, and troubleshooting), read:
 
 - [docs/FULL_APP_DOCUMENTATION.md](./docs/FULL_APP_DOCUMENTATION.md)
-

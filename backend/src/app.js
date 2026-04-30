@@ -34,7 +34,7 @@ app.use(cookieParser())
 app.use(sanitizeInput)
 app.use(globalRateLimiter)
 
-const allowedOrigins = process.env.CORS_ORIGINS.split(',')
+const allowedOrigins = env.corsOrigins
 
 app.use(
   cors({

@@ -3,5 +3,6 @@ export default {
   globalSetup: '<rootDir>/src/tests/globalSetup.js',
   globalTeardown: '<rootDir>/src/tests/globalTeardown.js',
   setupFilesAfterEnv: ['<rootDir>/src/tests/setupFileAfterEnv.js'],
+  maxWorkers: 1,
   transform: {},
 }

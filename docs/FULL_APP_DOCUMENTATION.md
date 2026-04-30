@@ -58,8 +58,10 @@ Core capabilities:
 - Public and private user profiles
 - Admin dashboard:
   - Post create/edit/delete
+  - Draft, scheduled, and published post workflow
   - User role/status management
   - Moderation queue
+- Markdown-first rich text editing with sanitized HTML rendering
 - App-wide theme modes: `light`, `dark`, `system`
 
 - [Live Demo](https://mblog-frl0.onrender.com)
@@ -87,6 +89,7 @@ Frontend:
 - TanStack Query
 - Tailwind CSS v4
 - React Toastify
+- MDXEditor
 
 Backend:
 - Node.js (ESM)
@@ -95,6 +98,8 @@ Backend:
 - Joi validation
 - JWT (`15m` access token, `7d` refresh token)
 - Multer memory uploads + Cloudinary
+- node-cron
+- markdown-it + sanitize-html
 
 ---
 
@@ -293,6 +298,8 @@ Middleware order:
 
 ### `Post`
 - `title`, `content`, `author`, `tags`, `slug`, `imageUrl`, `imagePublicId`
+- Publishing fields: `status` (`draft`, `scheduled`, `published`), `scheduledFor`, `publishedAt`
+- `content` stores canonical Markdown. Read responses include sanitized `contentHtml` and plain text `excerpt`.
 
 ### `Comment`
 - `post`, `author`, `content`
@@ -436,6 +443,8 @@ Standard error envelope:
   - Query: `page`, `limit`, `sortBy`, `sortOrder`, `cursor`, `author`, `tag`, `search`
 - `GET /posts/slug/:slug`
 - `GET /posts/:id`
+- Public post endpoints only return `published` posts.
+- Default public sorting is `publishedAt` descending.
 
 ### 8.3.1 Pagination strategy
 - it is `_id` based for cursor pagination. `cursor` is a MongoDB ObjectId and the backend applies `_id < cursor`.
@@ -446,8 +455,12 @@ Standard error envelope:
 
 ## 8.4 Admin Posts
 - `POST /admin/posts` (admin)
+- `GET /admin/posts` (admin)
+  - Query: `status=all|draft|scheduled|published`
+- `GET /admin/posts/:id` (admin)
 - `PATCH /admin/posts/:id` (admin)
 - `DELETE /admin/posts/:id` (admin)
+- `POST /admin/posts/images` (admin, multipart `image`)
 - Compat alias: `/admin/post/*`
 
 ## 8.5 Comments and Moderation
@@ -487,6 +500,9 @@ Standard error envelope:
 - Create/update supports multipart form with optional image upload.
 - If uploading binary image, Cloudinary config must be valid.
 - Alternatively, image URL can be sent without file upload.
+- Admins can save drafts, publish immediately, or schedule a future publish datetime.
+- The backend scheduler runs every minute and publishes due scheduled posts.
+- The editor stores Markdown in `content`; public reads render sanitized HTML from that Markdown.
 
 ## 9.3 Moderation
 - User comments default to `pending`.
@@ -506,6 +522,11 @@ Standard error envelope:
 - Profile updates:
   - `bio` max 280
   - `avatarUrl` must be a URI
+- Posts:
+  - `title` required
+  - `status` must be `draft`, `scheduled`, or `published`
+  - `content` required for `scheduled` and `published`
+  - `scheduledFor` must be a future datetime for `scheduled`
 - ID params:
   - must be 24-char Mongo ObjectId
 
@@ -563,6 +584,7 @@ Backend tests use:
 ## 14. Known Technical Notes
 
 - Rate limiting is in-memory (not distributed); use Redis/store-backed limiter for horizontal scaling.
+- Scheduled publishing runs in the backend process. Use a separate worker or distributed lock if scaling to multiple backend instances.
 - There is a compatibility alias for admin post routes (`/api/admin/post`) during migration.
 - `COMMENT_TTL_DAYS` exists in env config but is not currently used to compute `expiresAt` in comment creation/model defaults.
 
@@ -585,14 +607,6 @@ When adding new features:
 ---
 
 ## 16. Future Enhancements
-
-### Drafts + scheduled publishing
-   - Allow authors to save draft posts and publish immediately or at a scheduled datetime.
-   - Add post status states (`draft`, `scheduled`, `published`) and a background publish job.
-
-### Rich text editor with Markdown support
-   - Upgrade the post editor to support Markdown shortcuts, headings, code blocks, and image embeds.
-   - Store canonical Markdown and render sanitized HTML on read.
 
 ### Post bookmarks (save for later)
    - Let authenticated users bookmark/unbookmark posts.
