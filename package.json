@@ -46,9 +46,6 @@
     "prettier": "^3.8.1",
     "vite": "^7.3.1"
   },
-  "screpts": {
-    "lint": "eslint src"
-  },
   "lint-staged": {
     "**/*.{js,jsx}": [
       "npx prettier --write",
