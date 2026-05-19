@@ -18,9 +18,63 @@ const readTime = (content) => {
   return `${Math.max(1, Math.ceil(words / 200))} min read`
 }
 
+const copyTextToClipboard = async (text) => {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text)
+    return
+  }
+
+  const textArea = document.createElement('textarea')
+  textArea.value = text
+  textArea.setAttribute('readonly', '')
+  textArea.style.position = 'fixed'
+  textArea.style.top = '-9999px'
+  document.body.appendChild(textArea)
+
+  try {
+    textArea.select()
+    const copied = document.execCommand('copy')
+    if (!copied) throw new Error('Unable to copy code')
+  } finally {
+    document.body.removeChild(textArea)
+  }
+}
+
 export const FullPostView = ({ post, likeStats, onToggleLike, canLike }) => {
   const navigate = useNavigate()
   const authorName = post?.author?.username || 'Unknown author'
+  const handleArticleClick = async (event) => {
+    const target = event.target
+    if (!(target instanceof Element)) return
+
+    const copyButton = target.closest('[data-copy-code]')
+    if (!copyButton) return
+
+    const codeBlock = copyButton.closest('.markdown-code-block')
+    const code = codeBlock?.querySelector('pre code')
+    const codeText = code?.textContent?.replace(/\n$/, '')
+    if (!codeText) return
+
+    const defaultLabel =
+      copyButton.dataset.defaultLabel || copyButton.textContent || 'Copy'
+    copyButton.dataset.defaultLabel = defaultLabel
+    copyButton.disabled = true
+
+    try {
+      await copyTextToClipboard(codeText)
+      copyButton.textContent = 'Copied✓'
+      copyButton.dataset.copyState = 'copied'
+    } catch {
+      copyButton.textContent = 'Failed✕'
+      copyButton.dataset.copyState = 'failed'
+    }
+
+    window.setTimeout(() => {
+      copyButton.textContent = defaultLabel
+      delete copyButton.dataset.copyState
+      copyButton.disabled = false
+    }, 1400)
+  }
 
   if (!post) {
     return (
@@ -100,7 +154,10 @@ export const FullPostView = ({ post, likeStats, onToggleLike, canLike }) => {
       </div>
 
       <article className='prose prose-lg max-w-none markdown-article'>
-        <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
+        <div
+          onClick={handleArticleClick}
+          dangerouslySetInnerHTML={{ __html: contentHtml }}
+        />
       </article>
     </div>
   )

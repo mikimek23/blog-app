@@ -2,7 +2,19 @@ import { marked } from 'marked'
 import { markedHighlight } from 'marked-highlight'
 import hljs from 'highlight.js'
 
-// Fix 2: Syntax highlighting
+const escapeHtml = (value) =>
+  String(value).replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      })[character],
+  )
+
 marked.use(
   markedHighlight({
     langPrefix: 'hljs language-',
@@ -13,10 +25,20 @@ marked.use(
   }),
 )
 
-// Fix 1: Interactive checklists (remove the `disabled` attribute)
 const renderer = new marked.Renderer()
 renderer.checkbox = ({ checked }) =>
   `<input type="checkbox" ${checked ? 'checked' : ''}>`
+renderer.code = ({ text, lang, escaped }) => {
+  const language = (lang || '').match(/\S*/)?.[0]
+  const className = language
+    ? ` class="hljs language-${escapeHtml(language)}"`
+    : ''
+  const code = String(text || '').replace(/\n$/, '')
+  const highlightedCode = escaped ? code : escapeHtml(code)
+
+  return `<div class="markdown-code-block"><button type="button" class="markdown-copy-button" data-copy-code aria-label="Copy code to clipboard">Copy</button><pre><code${className}>${highlightedCode}
+</code></pre></div>`
+}
 
 marked.use({ renderer, gfm: true })
 
